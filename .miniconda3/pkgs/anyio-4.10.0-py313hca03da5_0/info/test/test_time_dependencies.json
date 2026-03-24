@@ -1,1 +1,0 @@
-["pip", "pytest-mock >=3.14", "hypothesis >=4.0", "trustme", "pytest >=7.0", "uvloop 0.21.0.*", "trio", "exceptiongroup >=1.2.0", "psutil >=5.9", "tomli", "pytest-timeout"]

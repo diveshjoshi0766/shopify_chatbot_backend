@@ -1,5 +1,0 @@
-include/jansson.h
-include/jansson_config.h
-lib/libjansson.4.dylib
-lib/libjansson.dylib
-lib/pkgconfig/jansson.pc

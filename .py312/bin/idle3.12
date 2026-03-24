@@ -1,5 +1,0 @@
-#!/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.py312/bin/python3.12
-
-from idlelib.pyshell import main
-if __name__ == '__main__':
-    main()
