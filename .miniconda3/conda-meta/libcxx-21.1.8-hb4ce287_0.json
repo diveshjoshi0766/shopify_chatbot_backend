@@ -1,0 +1,37 @@
+{
+  "name": "libcxx",
+  "version": "21.1.8",
+  "build": "hb4ce287_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libcxx-21.1.8-hb4ce287_0.conda",
+  "md5": "e1ab9636b95bc3001d0d527205545f58",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libcxx-21.1.8-hb4ce287_0.conda",
+  "sha256": "e385c4a432c7459e2bb5e0e0177985911076ddb30efb082883f3cc3ebab2b9c9",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1"
+  ],
+  "constrains": [],
+  "license": "Apache-2.0 WITH LLVM-exception",
+  "license_family": "Apache",
+  "timestamp": 1769526424000,
+  "size": 315688,
+  "requested_spec": "pkgs/main/osx-arm64::libcxx==21.1.8=hb4ce287_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libcxx-21.1.8-hb4ce287_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libcxx-21.1.8-hb4ce287_0",
+  "files": [
+    "lib/libc++.1.0.dylib",
+    "lib/libc++.1.dylib"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": []
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libcxx-21.1.8-hb4ce287_0",
+    "type": 1
+  }
+}

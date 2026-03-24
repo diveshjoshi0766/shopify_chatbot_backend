@@ -1,0 +1,7 @@
+#!/Users/ec2-user/croot/conda_1771402195124/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+# -*- coding: utf-8 -*-
+import sys
+
+if __name__ == '__main__':
+    from conda_env.cli.main import main
+    sys.exit(main())

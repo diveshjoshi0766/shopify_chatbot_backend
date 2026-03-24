@@ -1,0 +1,16 @@
+{
+  "arch": "arm64",
+  "build": "hfe05a68_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=12.1",
+    "libcxx >=20"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "name": "c-ares",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1769077680758,
+  "version": "1.34.6"
+}

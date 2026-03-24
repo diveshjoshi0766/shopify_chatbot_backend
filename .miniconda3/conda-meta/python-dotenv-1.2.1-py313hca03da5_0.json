@@ -1,0 +1,75 @@
+{
+  "name": "python-dotenv",
+  "version": "1.2.1",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "python-dotenv-1.2.1-py313hca03da5_0.conda",
+  "md5": "69ed706ac95df59f56b448091f4c40fa",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/python-dotenv-1.2.1-py313hca03da5_0.conda",
+  "sha256": "bd7193ebae2aabecbd996e9cc0844e1f112f2cbe144e7d199555d78405f636ee",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "constrains": [
+    "click >=5.0"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "timestamp": 1768559713000,
+  "size": 51905,
+  "requested_spec": "pkgs/main/osx-arm64::python-dotenv==1.2.1=py313hca03da5_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/python-dotenv-1.2.1-py313hca03da5_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/python-dotenv-1.2.1-py313hca03da5_0",
+  "files": [
+    "bin/dotenv",
+    "lib/python3.13/site-packages/dotenv/__init__.py",
+    "lib/python3.13/site-packages/dotenv/__main__.py",
+    "lib/python3.13/site-packages/dotenv/__pycache__/__init__.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/__main__.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/cli.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/ipython.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/main.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/parser.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/variables.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/__pycache__/version.cpython-313.pyc",
+    "lib/python3.13/site-packages/dotenv/cli.py",
+    "lib/python3.13/site-packages/dotenv/ipython.py",
+    "lib/python3.13/site-packages/dotenv/main.py",
+    "lib/python3.13/site-packages/dotenv/parser.py",
+    "lib/python3.13/site-packages/dotenv/py.typed",
+    "lib/python3.13/site-packages/dotenv/variables.py",
+    "lib/python3.13/site-packages/dotenv/version.py",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/INSTALLER",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/METADATA",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/RECORD",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/REQUESTED",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/WHEEL",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/direct_url.json",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/entry_points.txt",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/licenses/LICENSE",
+    "lib/python3.13/site-packages/python_dotenv-1.2.1.dist-info/top_level.txt"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": [
+      {
+        "_path": "bin/dotenv",
+        "prefix_placeholder": "/Users/ec2-user/croot/python-dotenv_1768559692832/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "sha256": "e6c542fb6852f137a009a2defd252b5300711c7002d46997a10e79aa1fd0d566",
+        "size_in_bytes": 466,
+        "sha256_in_prefix": "e7bad26c84d83e07e649a60a5d047901cde85284dac8cbd49cb66c1dba971b56"
+      }
+    ]
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/python-dotenv-1.2.1-py313hca03da5_0",
+    "type": 1
+  }
+}

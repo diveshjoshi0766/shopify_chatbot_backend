@@ -1,0 +1,50 @@
+{
+  "name": "libbrotlidec",
+  "version": "1.2.0",
+  "build": "h1e834b2_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libbrotlidec-1.2.0-h1e834b2_0.conda",
+  "md5": "8d41fd7da1d9d44b9ba39ab833f66605",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libbrotlidec-1.2.0-h1e834b2_0.conda",
+  "sha256": "9db56cd97049b73274301c2b9fc8ddb5e103f8c68b3b2a4c04d245c4e5b6fef5",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1",
+    "libbrotlicommon 1.2.0 hbd7815e_0"
+  ],
+  "constrains": [],
+  "license": "MIT",
+  "license_family": "MIT",
+  "timestamp": 1762363457000,
+  "size": 27444,
+  "requested_spec": "pkgs/main/osx-arm64::libbrotlidec==1.2.0=h1e834b2_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libbrotlidec-1.2.0-h1e834b2_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libbrotlidec-1.2.0-h1e834b2_0",
+  "files": [
+    "lib/libbrotlidec.1.2.0.dylib",
+    "lib/libbrotlidec.1.dylib",
+    "lib/libbrotlidec.dylib",
+    "lib/pkgconfig/libbrotlidec.pc"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": [
+      {
+        "_path": "lib/pkgconfig/libbrotlidec.pc",
+        "prefix_placeholder": "/opt/miniconda3/conda-bld/brotli-split_1762363406148/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "sha256": "9bc27ace674404e2747b82d58c722a6c570b275025c5f2ed9e8164a69226c416",
+        "size_in_bytes": 787,
+        "sha256_in_prefix": "7c9c482c8dfe9d1f7f5a0c5c8341f100a5adf0c3c482545bd3387002103c0331"
+      }
+    ]
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libbrotlidec-1.2.0-h1e834b2_0",
+    "type": 1
+  }
+}

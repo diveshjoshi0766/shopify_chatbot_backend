@@ -1,0 +1,69 @@
+# This file created by conda-build 25.1.2
+# meta.yaml template originally from:
+# /Users/ec2-user/tasks/task_176829740773444/tomli-feedstock/recipe, last modified Tue Jan 13 09:43:30 2026
+# ------------------------------------------------
+
+package:
+  name: tomli
+  version: 2.4.0
+source:
+  sha256: 6d9e3a3f690db54a42eb9e98591ec5e9731779d3650c39668a220982f587a699
+  url: https://github.com/hukkin/tomli/archive/refs/tags/2.4.0.tar.gz
+build:
+  number: '0'
+  script: /Users/ec2-user/croot/tomli_1768297433071/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+    -m pip install . --no-deps --no-build-isolation -vv
+  string: py313hca03da5_0
+requirements:
+  host:
+    - bzip2 1.0.8 h80987f9_6
+    - ca-certificates 2025.12.2 hca03da5_0
+    - flit-core 3.12.0 py313hedbb292_1
+    - libcxx 20.1.8 hd7fd590_1
+    - libexpat 2.7.3 h50f4ffc_4
+    - libffi 3.4.4 hca03da5_1
+    - libmpdec 4.0.0 h80987f9_0
+    - libzlib 1.3.1 h5f15de7_0
+    - ncurses 6.5 hee39554_0
+    - openssl 3.0.18 h9b4081a_0
+    - pip 25.3 pyhc872135_0
+    - python 3.13.11 hc7d8306_100_cp313
+    - python_abi 3.13 3_cp313
+    - readline 8.3 h0b18652_0
+    - setuptools 80.9.0 py313hca03da5_0
+    - sqlite 3.51.1 hab6afd1_0
+    - tk 8.6.15 hcd8a7d5_0
+    - tzdata 2025b h04d1e81_0
+    - wheel 0.45.1 py313hca03da5_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.3.1 h5f15de7_0
+  run:
+    - python >=3.13,<3.14.0a0
+    - python_abi 3.13.* *_cp313
+test:
+  commands:
+    - pip check
+    - python -c "from importlib.metadata import version; assert(version('tomli')=='2.4.0')"
+    - pytest -v tests
+  imports:
+    - tomli
+  requires:
+    - pip
+    - pytest
+  source_files:
+    - tests
+about:
+  description: Tomli is a Python library for parsing TOML. It is fully compatible
+    with TOML v1.0.0.
+  dev_url: https://github.com/hukkin/tomli
+  doc_url: https://github.com/hukkin/tomli/blob/master/README.md
+  home: https://github.com/hukkin/tomli
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: A simple TOML parser
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - thewchan

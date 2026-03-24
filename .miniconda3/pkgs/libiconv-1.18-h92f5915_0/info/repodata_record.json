@@ -1,0 +1,21 @@
+{
+  "arch": "arm64",
+  "build": "h92f5915_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1"
+  ],
+  "fn": "libiconv-1.18-h92f5915_0.conda",
+  "license": "LGPL-2.1-only",
+  "md5": "efcf143adafc878192a4ab5252f4cacb",
+  "name": "libiconv",
+  "platform": "darwin",
+  "sha256": "a27dc69e68b856cdf1170001e570eac0876b5cb160b3b275cc79d8ac5e7bbc0e",
+  "size": 749113,
+  "subdir": "osx-arm64",
+  "timestamp": 1771491894000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libiconv-1.18-h92f5915_0.conda",
+  "version": "1.18"
+}

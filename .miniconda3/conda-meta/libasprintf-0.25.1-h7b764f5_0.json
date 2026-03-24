@@ -1,0 +1,36 @@
+{
+  "name": "libasprintf",
+  "version": "0.25.1",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libasprintf-0.25.1-h7b764f5_0.conda",
+  "md5": "6003a1343b04c750a86f6efa2f572aed",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libasprintf-0.25.1-h7b764f5_0.conda",
+  "sha256": "a3295db57bc22c78f922c0ee121ac8dbb0c8dae55a190d248e053075700ce902",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1",
+    "libcxx >=20"
+  ],
+  "constrains": [],
+  "license": "LGPL-2.1-or-later",
+  "timestamp": 1772045324000,
+  "size": 50271,
+  "requested_spec": "pkgs/main/osx-arm64::libasprintf==0.25.1=h7b764f5_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libasprintf-0.25.1-h7b764f5_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libasprintf-0.25.1-h7b764f5_0",
+  "files": [
+    "lib/libasprintf.0.dylib"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": []
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libasprintf-0.25.1-h7b764f5_0",
+    "type": 1
+  }
+}

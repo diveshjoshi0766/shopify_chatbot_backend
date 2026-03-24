@@ -1,0 +1,19 @@
+{
+  "libidn2": "2",
+  "libcurl": "8",
+  "c_stdlib_version": "12.1",
+  "c_compiler_version": "20",
+  "krb5": "1.22",
+  "zstd": "1.5",
+  "brotli": "1",
+  "c_compiler": "clang",
+  "c_stdlib": "macosx_deployment_target",
+  "CONDA_BUILD_SYSROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk",
+  "libssh2": "1",
+  "channel_targets": "defaults",
+  "target_platform": "osx-arm64",
+  "zlib": "1.2",
+  "openssl": "3",
+  "libnghttp2": "1.67",
+  "__osx": "__osx >=12.1"
+}

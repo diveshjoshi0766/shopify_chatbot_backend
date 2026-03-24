@@ -1,0 +1,23 @@
+{
+  "arch": "arm64",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "fn": "tomlkit-0.13.3-py313hca03da5_0.conda",
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "9199e3c9a0451d04eff558d461dd1b2c",
+  "name": "tomlkit",
+  "platform": "darwin",
+  "sha256": "5787a058d8aab97129b6201de75e1d3253fe9dbbe991c68b199c7df94962a3b2",
+  "size": 189601,
+  "subdir": "osx-arm64",
+  "timestamp": 1762896659000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/tomlkit-0.13.3-py313hca03da5_0.conda",
+  "version": "0.13.3"
+}

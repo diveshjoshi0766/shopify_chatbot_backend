@@ -1,0 +1,11 @@
+prefix=/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3
+exec_prefix=${prefix}
+includedir=/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/include
+libdir=/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/lib
+
+Name: Yaml-cpp
+Description: A YAML parser and emitter for C++
+Version: 0.8.0
+Requires:
+Libs: -L${libdir} -lyaml-cpp
+Cflags: -I${includedir}

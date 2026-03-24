@@ -1,0 +1,50 @@
+{
+  "name": "libbrotlienc",
+  "version": "1.2.0",
+  "build": "h5439a07_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libbrotlienc-1.2.0-h5439a07_0.conda",
+  "md5": "ae2005cd80e3d845fe71ab43f4dadd73",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libbrotlienc-1.2.0-h5439a07_0.conda",
+  "sha256": "4c70015a24a73ce6559c98b59c35d960661326e6fd218e5aa3d074b9ab34441f",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1",
+    "libbrotlicommon 1.2.0 hbd7815e_0"
+  ],
+  "constrains": [],
+  "license": "MIT",
+  "license_family": "MIT",
+  "timestamp": 1762363468000,
+  "size": 294292,
+  "requested_spec": "pkgs/main/osx-arm64::libbrotlienc==1.2.0=h5439a07_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libbrotlienc-1.2.0-h5439a07_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libbrotlienc-1.2.0-h5439a07_0",
+  "files": [
+    "lib/libbrotlienc.1.2.0.dylib",
+    "lib/libbrotlienc.1.dylib",
+    "lib/libbrotlienc.dylib",
+    "lib/pkgconfig/libbrotlienc.pc"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": [
+      {
+        "_path": "lib/pkgconfig/libbrotlienc.pc",
+        "prefix_placeholder": "/opt/miniconda3/conda-bld/brotli-split_1762363406148/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "sha256": "ddd261d76a60478a52de202f8464bce081b68e538cf768631cdf887c258d96d1",
+        "size_in_bytes": 787,
+        "sha256_in_prefix": "947b7a4511ea129892a79e6f398b4ca6a8f289f94cdfdc4b34f9ee7b36d62b9f"
+      }
+    ]
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libbrotlienc-1.2.0-h5439a07_0",
+    "type": 1
+  }
+}

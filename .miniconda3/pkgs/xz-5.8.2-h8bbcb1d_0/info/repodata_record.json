@@ -1,0 +1,22 @@
+{
+  "arch": "arm64",
+  "build": "h8bbcb1d_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1"
+  ],
+  "fn": "xz-5.8.2-h8bbcb1d_0.conda",
+  "license": "LGPL-2.1-or-later and GPL-2.0-or-later and 0BSD",
+  "license_family": "GPL2",
+  "md5": "bc7f39bd763f6957ec91046f0e67a9f3",
+  "name": "xz",
+  "platform": "darwin",
+  "sha256": "6d98eb8d7f2517e8a870dd44d25519215e2330a88e750ea21b2be9b1b9052fc7",
+  "size": 269216,
+  "subdir": "osx-arm64",
+  "timestamp": 1772548381000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/xz-5.8.2-h8bbcb1d_0.conda",
+  "version": "5.8.2"
+}

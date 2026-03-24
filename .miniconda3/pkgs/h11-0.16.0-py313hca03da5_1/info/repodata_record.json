@@ -1,0 +1,23 @@
+{
+  "arch": "arm64",
+  "build": "py313hca03da5_1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "fn": "h11-0.16.0-py313hca03da5_1.conda",
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "38e110c2ae2fb67d3ef1abfc786498f9",
+  "name": "h11",
+  "platform": "darwin",
+  "sha256": "6e90b3482d77fd6289188186a453b2be6dee73859e73c09f595774de02b0183e",
+  "size": 64806,
+  "subdir": "osx-arm64",
+  "timestamp": 1761931279000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/h11-0.16.0-py313hca03da5_1.conda",
+  "version": "0.16.0"
+}

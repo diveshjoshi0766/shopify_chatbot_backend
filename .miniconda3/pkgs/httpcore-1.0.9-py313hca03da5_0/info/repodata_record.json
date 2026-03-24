@@ -1,0 +1,25 @@
+{
+  "arch": "arm64",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "certifi",
+    "h11 >=0.16",
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "fn": "httpcore-1.0.9-py313hca03da5_0.conda",
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "md5": "6d33385bdc014731d4369f0d0e09af73",
+  "name": "httpcore",
+  "platform": "darwin",
+  "sha256": "29c6b4fe1102058af3c395fdf33dedc1ecaac6335759a2d0bed39dcb667e06a2",
+  "size": 129364,
+  "subdir": "osx-arm64",
+  "timestamp": 1748526183000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/httpcore-1.0.9-py313hca03da5_0.conda",
+  "version": "1.0.9"
+}

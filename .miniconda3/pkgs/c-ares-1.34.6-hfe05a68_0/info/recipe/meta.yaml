@@ -1,0 +1,92 @@
+# This file created by conda-build 25.1.2
+# ------------------------------------------------
+
+package:
+  name: c-ares
+  version: 1.34.6
+source:
+  sha256: 4358939ff800b13b92f37d5fdda003718101faedfbdee792d6b79ddc1a53d890
+  url: https://github.com/c-ares/c-ares/archive/refs/tags/v1.34.6.tar.gz
+build:
+  number: 0
+  run_exports:
+    - c-ares >=1.34.6,<2.0a0
+  string: hfe05a68_0
+requirements:
+  build:
+    - bzip2 1.0.8 h80987f9_6
+    - ca-certificates 2025.12.2 hca03da5_0
+    - cctools 1021.4 h01d68c5_0
+    - clang 20.1.8 h71b10da_0
+    - clang-20 20.1.8 default_h988c893_0
+    - clang_impl_osx-arm64 20.1.8 h05252e2_0
+    - clang_osx-arm64 20.1.8 hf3c1794_0
+    - clangxx 20.1.8 default_h0a00f0c_0
+    - clangxx_impl_osx-arm64 20.1.8 he123483_0
+    - clangxx_osx-arm64 20.1.8 hf3c1794_0
+    - cmake-no-system 3.25.3 h313beb8_0
+    - compiler-rt 20.1.8 hf790f37_0
+    - compiler-rt_osx-arm64 20.1.8 hf790f37_0
+    - gtest 1.17.0 h8f38272_0
+    - icu 73.1 h313beb8_0
+    - ld64 954.16 hbcf198d_0
+    - libclang-cpp20.1 20.1.8 default_h988c893_0
+    - libcxx 20.1.8 hd7fd590_1
+    - libcxx-devel 20.1.8 he423718_1
+    - libexpat 2.7.3 h50f4ffc_4
+    - libffi 3.4.4 hca03da5_1
+    - libiconv 1.16 h80987f9_3
+    - libllvm20 20.1.8 h1701f07_0
+    - libmpdec 4.0.0 h80987f9_0
+    - libxml2 2.13.9 h528a072_0
+    - libzlib 1.3.1 h5f15de7_0
+    - llvm-tools 20.1.8 hf790f37_0
+    - llvm-tools-20 20.1.8 h1e49d39_0
+    - lz4-c 1.9.4 h313beb8_1
+    - macosx_deployment_target_osx-arm64 12.1 h3601aa6_2
+    - ncurses 6.5 hee39554_0
+    - ninja 1.13.1 hca03da5_0
+    - ninja-base 1.13.1 h0028bb4_0
+    - openssl 3.0.18 h9b4081a_0
+    - python 3.14.2 h1858270_101_cp314
+    - python_abi 3.14 2_cp314
+    - readline 8.3 h0b18652_0
+    - sqlite 3.51.1 hab6afd1_0
+    - tapi 1100.0.11 h8754e6a_1
+    - tk 8.6.15 hcd8a7d5_0
+    - tzdata 2025c he532380_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.3.1 h5f15de7_0
+    - zstd 1.5.7 h817c040_0
+  host:
+    - libcxx 20.1.8 hd7fd590_1
+  run:
+    - __osx >=12.1
+    - libcxx >=20
+  run_constraint:
+    - c-ares-static <0a0
+test:
+  commands:
+    - test -f ${PREFIX}/include/ares.h
+    - test -f ${PREFIX}/lib/libcares${SHLIB_EXT}
+    - test ! -f ${PREFIX}/lib/libcares.a
+    - test ! -f ${PREFIX}/lib/libcares_static.a
+about:
+  description: 'c-ares is a C library for asynchronous DNS requests (including name
+    resolves).
+
+    '
+  dev_url: https://github.com/c-ares/c-ares
+  doc_url: https://c-ares.org/docs.html
+  home: https://c-ares.org
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE.md
+  summary: This is c-ares, an asynchronous resolver library
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ocefpaf
+    - wesm
+    - xhochy

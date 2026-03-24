@@ -1,0 +1,28 @@
+{
+  "arch": "arm64",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [
+    "h2 >=4,<5",
+    "backports.zstd >=1.0.0"
+  ],
+  "depends": [
+    "brotlicffi >=1.2.0",
+    "pysocks >=1.5.6,<2.0,!=1.5.7",
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "fn": "urllib3-2.6.3-py313hca03da5_0.conda",
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "464328fc7f4e77667c63d5284e866e85",
+  "name": "urllib3",
+  "platform": "darwin",
+  "sha256": "375349eeb47983e6e2b2d2608f7141d948e5396e2906b087781d4f49df8dad0c",
+  "size": 357592,
+  "subdir": "osx-arm64",
+  "timestamp": 1767810426000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/urllib3-2.6.3-py313hca03da5_0.conda",
+  "version": "2.6.3"
+}

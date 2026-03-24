@@ -1,0 +1,13 @@
+# Package Information for pkg-config
+
+prefix=/Users/ec2-user/croot/sqlite_1767608505890/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_place
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: SQLite
+Description: SQL database engine
+Version: 3.51.1
+Libs: -L${libdir} -lsqlite3
+Libs.private:  -lz   
+Cflags: -I${includedir}

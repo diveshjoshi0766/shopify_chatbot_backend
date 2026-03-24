@@ -1,0 +1,23 @@
+{
+  "arch": "arm64",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1",
+    "libiconv >=1.18,<2.0a0",
+    "libintl 0.25.1 h7b764f5_0"
+  ],
+  "fn": "libgettextpo-0.25.1-h7b764f5_0.conda",
+  "license": "GPL-3.0-or-later",
+  "md5": "ff87319dec2259db334819119e4a3c2c",
+  "name": "libgettextpo",
+  "platform": "darwin",
+  "sha256": "990d09632f566d8fa499d67fe53c307ca451065997ef2f0028534608fffa26cc",
+  "size": 177749,
+  "subdir": "osx-arm64",
+  "timestamp": 1772045341000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libgettextpo-0.25.1-h7b764f5_0.conda",
+  "version": "0.25.1"
+}

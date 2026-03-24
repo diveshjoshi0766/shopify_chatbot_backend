@@ -1,0 +1,38 @@
+{
+  "arch": "arm64",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [
+    "conda >=23.9.0",
+    "anaconda-cloud-auth >=0.13.0",
+    "conda-token >=0.7.0"
+  ],
+  "depends": [
+    "anaconda-cli-base >=0.8.1",
+    "cryptography >=3.4.0",
+    "httpx",
+    "keyring",
+    "pkce",
+    "pydantic",
+    "pyjwt",
+    "python >=3.13,<3.14.0a0",
+    "python-dotenv",
+    "python_abi 3.13.* *_cp313",
+    "requests",
+    "semver <4",
+    "anaconda-anon-usage >=0.7.2"
+  ],
+  "fn": "anaconda-auth-0.13.0-py313hca03da5_0.conda",
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "md5": "13cade21f29fe0f03c637a141eead4fe",
+  "name": "anaconda-auth",
+  "platform": "darwin",
+  "sha256": "d5510de2d87d8011ca53ccdfea822426a61e18c91734c2f81111b3a62637a3a7",
+  "size": 124000,
+  "subdir": "osx-arm64",
+  "timestamp": 1772491205000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/anaconda-auth-0.13.0-py313hca03da5_0.conda",
+  "version": "0.13.0"
+}

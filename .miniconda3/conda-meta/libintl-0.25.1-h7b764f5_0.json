@@ -1,0 +1,46 @@
+{
+  "name": "libintl",
+  "version": "0.25.1",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libintl-0.25.1-h7b764f5_0.conda",
+  "md5": "71d922b1c84b98246a9990d29cba6e92",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libintl-0.25.1-h7b764f5_0.conda",
+  "sha256": "3ac68c21c6ef9200dcb2d66f33d9164197876f0107cac807c9f3fc4ab644cde8",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1",
+    "libiconv >=1.18,<2.0a0"
+  ],
+  "constrains": [],
+  "license": "LGPL-2.1-or-later",
+  "timestamp": 1772045330000,
+  "size": 84499,
+  "requested_spec": "pkgs/main/osx-arm64::libintl==0.25.1=h7b764f5_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libintl-0.25.1-h7b764f5_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libintl-0.25.1-h7b764f5_0",
+  "files": [
+    "lib/libintl.8.dylib"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": [
+      {
+        "_path": "lib/libintl.8.dylib",
+        "prefix_placeholder": "/Users/ec2-user/croot/gettext-split_1772044997258/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehol",
+        "file_mode": "binary",
+        "path_type": "hardlink",
+        "sha256": "0ef112e8400b8e07567c241c18e9956f1fae7e45c7dbaee42ed8f2ce973fe276",
+        "size_in_bytes": 245952,
+        "sha256_in_prefix": "baddaf8ce891ef77a91d5df1af66ecbc6221cb1d8100d2df13024d25c91960ac"
+      }
+    ]
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libintl-0.25.1-h7b764f5_0",
+    "type": 1
+  }
+}

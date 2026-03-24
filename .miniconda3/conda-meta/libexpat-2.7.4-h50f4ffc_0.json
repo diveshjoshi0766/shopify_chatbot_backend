@@ -1,0 +1,61 @@
+{
+  "name": "libexpat",
+  "version": "2.7.4",
+  "build": "h50f4ffc_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libexpat-2.7.4-h50f4ffc_0.conda",
+  "md5": "438f079dbf8512bfcd78b597b462f8e8",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libexpat-2.7.4-h50f4ffc_0.conda",
+  "sha256": "7304c5a1207d9b8b65cbd0510830f811e23967d13d7fb02196a62a5df29f1308",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1",
+    "libcxx >=20"
+  ],
+  "constrains": [
+    "expat 2.7.4.*"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "timestamp": 1770062556000,
+  "size": 111739,
+  "requested_spec": "pkgs/main/osx-arm64::libexpat==2.7.4=h50f4ffc_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libexpat-2.7.4-h50f4ffc_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libexpat-2.7.4-h50f4ffc_0",
+  "files": [
+    "include/expat.h",
+    "include/expat_config.h",
+    "include/expat_external.h",
+    "lib/cmake/expat-2.7.4/expat-config-version.cmake",
+    "lib/cmake/expat-2.7.4/expat-config.cmake",
+    "lib/cmake/expat-2.7.4/expat-release.cmake",
+    "lib/cmake/expat-2.7.4/expat.cmake",
+    "lib/libexpat.1.11.2.dylib",
+    "lib/libexpat.1.dylib",
+    "lib/libexpat.dylib",
+    "lib/pkgconfig/expat.pc",
+    "share/doc/expat/AUTHORS",
+    "share/doc/expat/changelog"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": [
+      {
+        "_path": "lib/pkgconfig/expat.pc",
+        "prefix_placeholder": "/Users/ec2-user/croot/expat-split_1770062513452/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "sha256": "804541edd0069672472757d6d9928a7bd78de5e0394035e91f838c30e3523381",
+        "size_in_bytes": 528,
+        "sha256_in_prefix": "932119f424f70827aecbb0b6ac8e5264483e8126382ca64f2932def3dc15c196"
+      }
+    ]
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libexpat-2.7.4-h50f4ffc_0",
+    "type": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "cxx_compiler_version": "20",
+  "c_compiler": "clang",
+  "c_compiler_version": "20",
+  "channel_targets": "defaults",
+  "gettext": "0",
+  "target_platform": "osx-arm64",
+  "cxx_compiler": "clangxx",
+  "CONDA_BUILD_SYSROOT": "/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk",
+  "libkrb5": "1.21",
+  "c_stdlib": "macosx_deployment_target",
+  "lmdb": "0",
+  "ncurses": "6",
+  "libedit": "3.1",
+  "openssl": "3",
+  "c_stdlib_version": "12.1",
+  "__osx": "__osx >=12.1"
+}

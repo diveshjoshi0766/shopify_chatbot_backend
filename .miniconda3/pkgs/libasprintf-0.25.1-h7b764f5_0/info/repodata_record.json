@@ -1,0 +1,22 @@
+{
+  "arch": "arm64",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1",
+    "libcxx >=20"
+  ],
+  "fn": "libasprintf-0.25.1-h7b764f5_0.conda",
+  "license": "LGPL-2.1-or-later",
+  "md5": "6003a1343b04c750a86f6efa2f572aed",
+  "name": "libasprintf",
+  "platform": "darwin",
+  "sha256": "a3295db57bc22c78f922c0ee121ac8dbb0c8dae55a190d248e053075700ce902",
+  "size": 50271,
+  "subdir": "osx-arm64",
+  "timestamp": 1772045324000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libasprintf-0.25.1-h7b764f5_0.conda",
+  "version": "0.25.1"
+}

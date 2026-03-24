@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "stores": [
+    {
+      "store_id": "connection-uuid-from-database",
+      "tenant_id": "your-tenant-id",
+      "shop_domain": "your-store.myshopify.com",
+      "access_token": "shpat_or_oauth_token",
+      "scopes": ["read_products", "read_orders"],
+      "updated_at": "2026-01-01T00:00:00+00:00"
+    }
+  ]
+}

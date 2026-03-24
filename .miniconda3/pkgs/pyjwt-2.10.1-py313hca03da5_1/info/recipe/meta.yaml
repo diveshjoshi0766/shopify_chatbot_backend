@@ -1,0 +1,76 @@
+# This file created by conda-build 25.1.2
+# meta.yaml template originally from:
+# /Users/ec2-user/tasks/task_176433208845181/pyjwt-feedstock/recipe, last modified Fri Nov 28 12:14:50 2025
+# ------------------------------------------------
+
+package:
+  name: pyjwt
+  version: 2.10.1
+source:
+  sha256: 3cc5772eb20009233caf06e9d8a0577824723b44e6648ee0a2aedb6cf9381953
+  url: https://pypi.org/packages/source/p/pyjwt/pyjwt-2.10.1.tar.gz
+build:
+  number: '1'
+  script: /opt/miniconda3/conda-bld/pyjwt_1764332099092/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_pl/bin/python
+    -m pip install . --no-deps --no-build-isolation --ignore-installed --no-cache-dir
+    -vv
+  string: py313hca03da5_1
+requirements:
+  host:
+    - bzip2 1.0.8 h80987f9_6
+    - ca-certificates 2025.11.4 hca03da5_0
+    - expat 2.7.3 h982b769_0
+    - libcxx 20.1.8 hd7fd590_1
+    - libffi 3.4.4 hca03da5_1
+    - libmpdec 4.0.0 h80987f9_0
+    - libzlib 1.3.1 h5f15de7_0
+    - ncurses 6.5 hee39554_0
+    - openssl 3.0.18 h9b4081a_0
+    - pip 25.3 pyhc872135_0
+    - python 3.13.9 hc7d8306_100_cp313
+    - python_abi 3.13 2_cp313
+    - readline 8.3 h0b18652_0
+    - setuptools 80.9.0 py313hca03da5_0
+    - sqlite 3.51.0 hab6afd1_0
+    - tk 8.6.15 hcd8a7d5_0
+    - tzdata 2025b h04d1e81_0
+    - wheel 0.45.1 py313hca03da5_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.3.1 h5f15de7_0
+  run:
+    - python >=3.13,<3.14.0a0
+    - python_abi 3.13.* *_cp313
+  run_constrained:
+    - cryptography >=3.4.0
+test:
+  commands:
+    - pip check
+    - pytest tests
+  imports:
+    - jwt
+  requires:
+    - pip
+    - pytest >=6.0.0,<9.0.0
+  source_files:
+    - tests
+about:
+  description: 'PyJWT is a Python library which allows you to encode and decode JSON
+    Web Tokens (JWT).
+
+    JWT is an open, industry-standard (RFC 7519) for representing claims securely
+    between two parties.
+
+    '
+  dev_url: https://github.com/jpadilla/pyjwt
+  doc_url: https://pyjwt.readthedocs.io
+  home: https://github.com/jpadilla/pyjwt
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: JSON Web Token implementation in Python
+extra:
+  copy_test_source_files: true
+  final: true
+  recipe-maintainers:
+    - ocefpaf
+    - pmlandwehr

@@ -1,0 +1,15 @@
+{
+  "arch": "arm64",
+  "build": "h8bbcb1d_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=12.1"
+  ],
+  "license": "LGPL-2.1-or-later and GPL-2.0-or-later and 0BSD",
+  "license_family": "GPL2",
+  "name": "xz",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1772548381049,
+  "version": "5.8.2"
+}

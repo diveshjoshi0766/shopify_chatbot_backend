@@ -1,0 +1,23 @@
+{
+  "arch": "arm64",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "fn": "jaraco.context-6.1.0-py313hca03da5_0.conda",
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "0a89e92618b4328787ef72b0d94d8808",
+  "name": "jaraco.context",
+  "platform": "darwin",
+  "sha256": "7a62f07477d22eee6924bff0b9f9243c9cf43abb1e6ffda42e12cacc80063d88",
+  "size": 17072,
+  "subdir": "osx-arm64",
+  "timestamp": 1769477856000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/jaraco.context-6.1.0-py313hca03da5_0.conda",
+  "version": "6.1.0"
+}

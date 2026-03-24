@@ -1,0 +1,116 @@
+# This file created by conda-build 24.9.0
+# meta.yaml template originally from:
+# /var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_0d73gp34a_/clone/recipe, last modified Thu Jun 26 12:23:37 2025
+# ------------------------------------------------
+
+package:
+  name: msgpack-python
+  version: 1.1.1
+source:
+  sha256: 77b79ce34a2bdab2594f490c8e80dd62a02d650b91a75159a63ec413b8d104cd
+  url: https://pypi.io/packages/source/m/msgpack/msgpack-1.1.1.tar.gz
+build:
+  number: '0'
+  script: /var/folders/nz/j6p8yfhx1mv_0grj5xl4650h0000gp/T/abs_0d73gp34a_/croot/msgpack-python_1750958625811/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold/bin/python
+    -m pip install . -vv --no-deps --no-build-isolation
+  string: py313h313beb8_0
+requirements:
+  build:
+    - bzip2 1.0.8 h80987f9_6
+    - ca-certificates 2025.2.25 hca03da5_0
+    - cctools_osx-arm64 949.0.1 h332cad3_25
+    - clang 14.0.6 hca03da5_2
+    - clang-14 14.0.6 default_h1b80db6_2
+    - clang_osx-arm64 14.0.6 h9ff6fda_0
+    - clangxx 14.0.6 default_h1b80db6_2
+    - clangxx_osx-arm64 14.0.6 h72866fe_0
+    - compiler-rt 14.0.6 h4ccfd99_0
+    - compiler-rt_osx-arm64 14.0.6 h4fb70ea_0
+    - expat 2.7.1 h313beb8_0
+    - ld64_osx-arm64 530 h001ce53_25
+    - ldid 2.1.5 h20b2a84_3
+    - libclang-cpp14 14.0.6 default_h1b80db6_2
+    - libcxx 14.0.6 h848a8c0_0
+    - libffi 3.4.4 hca03da5_1
+    - libllvm14 14.0.6 h19fdd8a_4
+    - libmpdec 4.0.0 h80987f9_0
+    - llvm-tools 14.0.6 h7ec7a93_4
+    - ncurses 6.4 h313beb8_0
+    - openssl 3.0.16 h02f6b3c_0
+    - python 3.13.5 h2eb94d5_100_cp313
+    - python_abi 3.13 0_cp313
+    - readline 8.2 h1a28f6b_0
+    - sqlite 3.45.3 h80987f9_0
+    - tapi 1100.0.11 h8754e6a_1
+    - tk 8.6.14 h6ba3021_1
+    - tzdata 2025b h04d1e81_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.2.13 h18a0788_1
+  host:
+    - bzip2 1.0.8 h80987f9_6
+    - ca-certificates 2025.2.25 hca03da5_0
+    - cython 3.0.11 py313h80987f9_1
+    - expat 2.7.1 h313beb8_0
+    - libcxx 17.0.6 he5c5206_4
+    - libffi 3.4.4 hca03da5_1
+    - libmpdec 4.0.0 h80987f9_0
+    - ncurses 6.4 h313beb8_0
+    - openssl 3.0.16 h02f6b3c_0
+    - pip 25.1 pyhc872135_2
+    - python 3.13.5 h2eb94d5_100_cp313
+    - python_abi 3.13 0_cp313
+    - readline 8.2 h1a28f6b_0
+    - setuptools 78.1.1 py313hca03da5_0
+    - sqlite 3.45.3 h80987f9_0
+    - tk 8.6.14 h6ba3021_1
+    - tzdata 2025b h04d1e81_0
+    - wheel 0.45.1 py313hca03da5_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.2.13 h18a0788_1
+  run:
+    - libcxx >=14.0.6
+    - python >=3.13,<3.14.0a0
+    - python_abi 3.13.* *_cp313
+test:
+  commands:
+    - pip check
+    - python -c "from importlib.metadata import version; assert(version('msgpack')=='1.1.1')"
+    - pytest -v test
+  imports:
+    - msgpack
+    - msgpack.exceptions
+    - msgpack.ext
+  requires:
+    - pip
+    - pytest
+  source_files:
+    - test
+about:
+  description: 'MessagePack is an efficient binary serialization format.
+
+    It lets you exchange data among multiple languages like JSON.
+
+    But it''s faster and smaller. Small integers are encoded into a
+
+    single byte, and typical short strings require only one extra
+
+    byte in addition to the strings themselves.
+
+    '
+  dev_url: https://github.com/msgpack/msgpack-python
+  doc_url: https://github.com/msgpack/msgpack/blob/master/spec.md
+  home: https://msgpack.org
+  license: Apache-2.0
+  license_family: Apache
+  license_file: COPYING
+  summary: MessagePack (de)serializer
+extra:
+  copy_test_source_files: true
+  final: true
+  flow_run_id: 0dc56eca-e74f-4cb7-a9da-8200717d4f0f
+  recipe-maintainers:
+    - carlodri
+    - jakirkham
+    - ocefpaf
+  remote_url: git@github.com:AnacondaRecipes/msgpack-python-feedstock.git
+  sha: c812520fb18a7c7565283620263fe92a0ad797a3

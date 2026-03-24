@@ -1,0 +1,167 @@
+# This file created by conda-build 26.1.0
+# meta.yaml template originally from:
+# /Users/ec2-user/tasks/task_177140110370066/conda-feedstock/recipe, last modified Wed Feb 18 08:09:30 2026
+# ------------------------------------------------
+
+package:
+  name: conda
+  version: 26.1.1
+source:
+  url: https://github.com/conda/conda/releases/download/26.1.1/conda-26.1.1.tar.gz
+  sha256: 4a3ca594c61b1ec316b6401ebc8515d0184a0eb7f61488da0628c44f0fea0764
+  folder: conda-src
+build:
+  number: '0'
+  script: /Users/ec2-user/croot/conda_1771402195124/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+    -m pip install conda-src/ --no-deps --no-build-isolation -vv && /Users/ec2-user/croot/conda_1771402195124/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeh/bin/python
+    -m conda init --install
+  always_include_files:
+    - bin/activate
+    - bin/conda
+    - bin/deactivate
+  string: py313hca03da5_0
+requirements:
+  build:
+    - bzip2 1.0.8 h80987f9_6
+    - c-ares 1.34.6 hfe05a68_0
+    - ca-certificates 2025.12.2 hca03da5_0
+    - expat 2.7.4 h50f4ffc_0
+    - gettext 0.21.0 hbdbcc25_2
+    - git 2.51.0 pl5382hee26aef_1
+    - icu 73.1 h313beb8_0
+    - jansson 2.14 h80987f9_1
+    - libbrotlicommon 1.2.0 hbd7815e_0
+    - libbrotlidec 1.2.0 h1e834b2_0
+    - libbrotlienc 1.2.0 h5439a07_0
+    - libcurl 8.18.0 hd4c70c6_0
+    - libcxx 21.1.8 hb4ce287_0
+    - libev 4.33 h1a28f6b_1
+    - libexpat 2.7.4 h50f4ffc_0
+    - libiconv 1.16 h80987f9_3
+    - libidn2 2.3.8 h9681e36_0
+    - libkrb5 1.22.1 ha46c28b_0
+    - libnghttp2 1.67.1 h8189af8_0
+    - libssh2 1.11.1 h3e2b118_0
+    - libunistring 1.3 h1799b2a_0
+    - libxml2 2.13.9 h528a072_0
+    - libzlib 1.3.1 h5f15de7_0
+    - llvm-openmp 21.1.8 hfab7639_0
+    - lmdb 0.9.31 h79febb2_0
+    - lz4-c 1.9.4 h313beb8_1
+    - ncurses 6.5 hee39554_0
+    - openssl 3.0.19 ha0b305a_0
+    - pcre2 10.46 h1dacb4a_0
+    - perl 5.42.0 0_haa24f5a_perl5
+    - tk 8.6.15 hcd8a7d5_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.3.1 h5f15de7_0
+    - zstd 1.5.7 h817c040_0
+  host:
+    - boltons 25.0.0 py313hca03da5_0
+    - brotlicffi 1.2.0.0 py313h50f4ffc_0
+    - bzip2 1.0.8 h80987f9_6
+    - ca-certificates 2025.12.2 hca03da5_0
+    - certifi 2026.01.04 py313hca03da5_0
+    - cffi 2.0.0 py313h73c2a22_1
+    - charset-normalizer 3.4.4 py313hca03da5_0
+    - frozendict 2.4.6 py313haa24f5a_0
+    - hatch-vcs 0.5.0 py313hca03da5_0
+    - hatchling 1.27.0 py313hca03da5_1
+    - idna 3.11 py313hca03da5_0
+    - libcxx 21.1.8 hb4ce287_0
+    - libexpat 2.7.4 h50f4ffc_0
+    - libffi 3.4.4 hca03da5_1
+    - libmpdec 4.0.0 h80987f9_0
+    - libzlib 1.3.1 h5f15de7_0
+    - menuinst 2.4.2 py313hca03da5_1
+    - ncurses 6.5 hee39554_0
+    - openssl 3.0.19 ha0b305a_0
+    - packaging 25.0 py313hca03da5_1
+    - pathspec 1.0.4 py313hca03da5_0
+    - pip 26.0.1 pyhc872135_0
+    - platformdirs 4.5.0 py313hca03da5_0
+    - pluggy 1.5.0 py313hca03da5_0
+    - pycparser 2.23 py313hca03da5_0
+    - pysocks 1.7.1 py313hca03da5_1
+    - python 3.13.11 hc7d8306_100_cp313
+    - python_abi 3.13 3_cp313
+    - readline 8.3 h0b18652_0
+    - requests 2.32.5 py313hca03da5_1
+    - ruamel.yaml 0.18.16 py313h091b9d3_0
+    - ruamel.yaml.clib 0.2.14 py313h091b9d3_0
+    - setuptools 80.10.2 py313hca03da5_0
+    - setuptools-scm 9.2.2 py313hca03da5_0
+    - sqlite 3.51.1 hab6afd1_0
+    - tk 8.6.15 hcd8a7d5_0
+    - tqdm 4.67.3 py313h7eb115d_1
+    - trove-classifiers 2026.1.14.14 py313hca03da5_0
+    - tzdata 2025c he532380_0
+    - urllib3 2.6.3 py313hca03da5_0
+    - wheel 0.46.3 py313hca03da5_0
+    - xz 5.6.4 h80987f9_1
+    - zlib 1.3.1 h5f15de7_0
+  run:
+    - archspec >=0.2.3
+    - boltons >=23.0.0
+    - charset-normalizer
+    - conda-libmamba-solver >=25.4.0
+    - conda-package-handling >=2.2.0
+    - distro >=1.5.0
+    - frozendict >=2.4.2
+    - jsonpatch >=1.32
+    - menuinst >=2
+    - packaging >=23.0
+    - platformdirs >=3.10.0
+    - pluggy >=1.0.0
+    - pycosat >=0.6.3
+    - python >=3.13,<3.14.0a0
+    - python_abi 3.13.* *_cp313
+    - requests >=2.28.0,<3
+    - ruamel.yaml >=0.11.14,<0.19
+    - setuptools >=60.0.0
+    - tqdm >=4
+    - truststore >=0.8.0
+    - zstandard >=0.19.0
+  run_constrained:
+    - conda-build >=25.9
+    - conda-content-trust >=0.1.1
+    - conda-env >=2.6
+test:
+  requires: null
+  imports:
+    - conda
+    - conda_env
+  downstreams:
+    - conda-smithy
+about:
+  home: https://docs.conda.io/
+  license: BSD-3-Clause
+  license_family: BSD
+  license_file: conda-src/LICENSE
+  summary: OS-agnostic, system-level binary package and environment manager.
+  description: 'Conda is an open source package management system and environment
+
+    management system for installing multiple versions of software packages
+
+    and their dependencies and switching easily between them. It works on
+
+    Linux, OS X and Windows, and was created for Python programs but can
+
+    package and distribute any software.
+
+    '
+  doc_url: https://docs.conda.io/projects/conda/en/stable/
+  dev_url: https://github.com/conda/conda
+extra:
+  skip-lints:
+    - host_section_needs_exact_pinnings
+    - missing_pip_check
+    - python_build_tool_in_run
+    - python_build_tools_in_host
+  final: true
+  copy_test_source_files: true
+  remote_url: https://github.com/AnacondaRecipes/conda-feedstock
+  sha: a463b9f843750e36026f8dc4a8ecebfe6bd0c2ce
+  task_id: JZ0jzZ66RvGlnjWAlufIcQ
+  task_run_id: '0'
+  pbp_graph_uuid: 1068c136-0455-45b3-93c6-7fc9d01a278b

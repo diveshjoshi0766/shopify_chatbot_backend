@@ -1,0 +1,71 @@
+{
+  "paths": [
+    {
+      "_path": "lib/python3.13/site-packages/jaraco/context/__init__.py",
+      "path_type": "hardlink",
+      "sha256": "6ebd727581a8d57aff3eed5a9ee11d77e42b8d48b3fc46392ffe44e02d372f8c",
+      "size_in_bytes": 9809
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco/context/__pycache__/__init__.cpython-313.pyc",
+      "path_type": "hardlink",
+      "sha256": "789466153adc9bc50e19546cd20a05ea1696029014ed390fa8310d6ec6adcbdc",
+      "size_in_bytes": 14697
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco/context/py.typed",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/INSTALLER",
+      "path_type": "hardlink",
+      "sha256": "d0edee15f91b406f3f99726e44eb990be6e34fd0345b52b910c568e0eef6a2a8",
+      "size_in_bytes": 5
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/METADATA",
+      "path_type": "hardlink",
+      "sha256": "0435ebfc52055c5a9974ed20c171b6454383eaf9dbb1508814ba7ad97c59d712",
+      "size_in_bytes": 4270
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/RECORD",
+      "path_type": "hardlink",
+      "sha256": "9d81436fb5dab5a16d255d50eb43e262d824c5fef2e9a30811b3b55e6a76c0bb",
+      "size_in_bytes": 943
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/REQUESTED",
+      "path_type": "hardlink",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_in_bytes": 0
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/WHEEL",
+      "path_type": "hardlink",
+      "sha256": "a842dba36b35633977f599ab0226d70368e33cb5187e756150d4e5c85d6bab46",
+      "size_in_bytes": 92
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/direct_url.json",
+      "path_type": "hardlink",
+      "sha256": "790d7799c62363850b2aaef04ec4c9ae1cef083b709d05edfe0de02c1f13a938",
+      "size_in_bytes": 89
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/licenses/LICENSE",
+      "path_type": "hardlink",
+      "sha256": "9755a18519666e5f0f4cae3daad3d7012bcae48a600b31237d75e9fe134e6683",
+      "size_in_bytes": 1076
+    },
+    {
+      "_path": "lib/python3.13/site-packages/jaraco_context-6.1.0.dist-info/top_level.txt",
+      "path_type": "hardlink",
+      "sha256": "d099cddcb7d71f82c845f5cbf9014e18227341664edc42f1e11d5dfe5a2ea103",
+      "size_in_bytes": 7
+    }
+  ],
+  "paths_version": 1
+}

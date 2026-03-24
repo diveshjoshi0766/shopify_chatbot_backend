@@ -1,0 +1,16 @@
+{
+  "arch": "arm64",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=12.1",
+    "libiconv >=1.18,<2.0a0",
+    "libintl 0.25.1 h7b764f5_0"
+  ],
+  "license": "GPL-3.0-or-later",
+  "name": "libgettextpo",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1772045341415,
+  "version": "0.25.1"
+}

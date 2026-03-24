@@ -1,0 +1,30 @@
+{
+  "arch": "arm64",
+  "build": "h50c8ec2_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1",
+    "gettext-tools 0.25.1 h61de102_0",
+    "libasprintf 0.25.1 h7b764f5_0",
+    "libasprintf-devel 0.25.1 h7b764f5_0",
+    "libcxx >=20",
+    "libgettextpo 0.25.1 h7b764f5_0",
+    "libgettextpo-devel 0.25.1 h7b764f5_0",
+    "libiconv >=1.18,<2.0a0",
+    "libintl 0.25.1 h7b764f5_0",
+    "libintl-devel 0.25.1 h7b764f5_0"
+  ],
+  "fn": "gettext-0.25.1-h50c8ec2_0.conda",
+  "license": "LGPL-2.1-or-later AND GPL-3.0-or-later",
+  "md5": "019e4c074d5db31938a582141e0d8af1",
+  "name": "gettext",
+  "platform": "darwin",
+  "sha256": "40d943c93b3530d872e0d984fe79570debae6cb8f6b8b715a83043fd349f9815",
+  "size": 540523,
+  "subdir": "osx-arm64",
+  "timestamp": 1772045399000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/gettext-0.25.1-h50c8ec2_0.conda",
+  "version": "0.25.1"
+}

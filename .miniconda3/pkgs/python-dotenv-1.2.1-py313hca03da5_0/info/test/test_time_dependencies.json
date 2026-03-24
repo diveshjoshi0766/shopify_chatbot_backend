@@ -1,0 +1,1 @@
+["pip", "pytest >=3.9", "click", "sh >=2"]

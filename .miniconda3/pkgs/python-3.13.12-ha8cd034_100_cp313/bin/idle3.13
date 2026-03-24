@@ -1,0 +1,5 @@
+#!/Users/ec2-user/croot/python-split_1771948976087/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold/bin/python3.13
+
+from idlelib.pyshell import main
+if __name__ == '__main__':
+    main()

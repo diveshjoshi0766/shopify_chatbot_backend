@@ -1,0 +1,41 @@
+{
+  "name": "typer-slim-standard",
+  "version": "0.20.0",
+  "build": "py313hca03da5_1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "typer-slim-standard-0.20.0-py313hca03da5_1.conda",
+  "md5": "9d8e87a1f5725cf60bba4ec5094b80ae",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/typer-slim-standard-0.20.0-py313hca03da5_1.conda",
+  "sha256": "f10f6c39573b002cd7ed525c97e3a1033525b17e2ca9f635c7965ad1578e5d98",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313",
+    "rich",
+    "shellingham",
+    "typer-slim 0.20.0 py313hca03da5_1"
+  ],
+  "constrains": [
+    "typer 0.20.0.*",
+    "typer-cli 0.20.0.*"
+  ],
+  "license": "MIT",
+  "license_family": "MIT",
+  "timestamp": 1771513045000,
+  "size": 7235,
+  "requested_spec": "pkgs/main/osx-arm64::typer-slim-standard==0.20.0=py313hca03da5_1",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/typer-slim-standard-0.20.0-py313hca03da5_1.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/typer-slim-standard-0.20.0-py313hca03da5_1",
+  "files": [],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": []
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/typer-slim-standard-0.20.0-py313hca03da5_1",
+    "type": 1
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "paths": [
+    {
+      "_path": "lib/libgettextpo.0.dylib",
+      "path_type": "hardlink",
+      "sha256": "b1c00ea8b290ab94d715f48c79cbf584b31a68d8ad872a31fa01c09b0496e97c",
+      "size_in_bytes": 522608
+    }
+  ],
+  "paths_version": 1
+}

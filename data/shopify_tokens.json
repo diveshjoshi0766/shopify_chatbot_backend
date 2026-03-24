@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "stores": [
+    {
+      "store_id": "447ee09e-0f7c-4f1a-a1f9-261398f7d2ce",
+      "tenant_id": "t1",
+      "shop_domain": "dynavap-wholesale.myshopify.com",
+      "access_token": "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",
+      "scopes": [],
+      "updated_at": "2026-03-22T16:59:59.389584+00:00"
+    },
+    {
+      "store_id": "825c64b0-a15a-46cc-bc37-02c57fc37da8",
+      "tenant_id": "t1",
+      "shop_domain": "test.myshopify.com",
+      "access_token": "shpat_test",
+      "scopes": [
+        "read_products"
+      ],
+      "updated_at": "2026-03-22T15:36:50.831203+00:00"
+    }
+  ]
+}

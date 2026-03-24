@@ -1,0 +1,52 @@
+{
+  "name": "certifi",
+  "version": "2026.01.04",
+  "build": "py313hca03da5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "certifi-2026.01.04-py313hca03da5_0.conda",
+  "md5": "65d56422e29c425a3a91c8e1c17888d0",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/certifi-2026.01.04-py313hca03da5_0.conda",
+  "sha256": "839ea683a30bfd322076dceafaa8752882feebb654afe9ddd8595e71db99faa1",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "python >=3.13,<3.14.0a0",
+    "python_abi 3.13.* *_cp313"
+  ],
+  "constrains": [],
+  "license": "MPL-2.0",
+  "license_family": "Other",
+  "timestamp": 1767659160000,
+  "size": 151748,
+  "requested_spec": "pkgs/main/osx-arm64::certifi==2026.01.04=py313hca03da5_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/certifi-2026.01.04-py313hca03da5_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/certifi-2026.01.04-py313hca03da5_0",
+  "files": [
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/INSTALLER",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/LICENSE",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/METADATA",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/RECORD",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/REQUESTED",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/WHEEL",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/direct_url.json",
+    "lib/python3.13/site-packages/certifi-2026.1.4.dist-info/top_level.txt",
+    "lib/python3.13/site-packages/certifi/__init__.py",
+    "lib/python3.13/site-packages/certifi/__main__.py",
+    "lib/python3.13/site-packages/certifi/__pycache__/__init__.cpython-313.pyc",
+    "lib/python3.13/site-packages/certifi/__pycache__/__main__.cpython-313.pyc",
+    "lib/python3.13/site-packages/certifi/__pycache__/core.cpython-313.pyc",
+    "lib/python3.13/site-packages/certifi/cacert.pem",
+    "lib/python3.13/site-packages/certifi/core.py",
+    "lib/python3.13/site-packages/certifi/py.typed"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": []
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/certifi-2026.01.04-py313hca03da5_0",
+    "type": 1
+  }
+}

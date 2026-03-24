@@ -1,0 +1,37 @@
+{
+  "name": "libgettextpo",
+  "version": "0.25.1",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64",
+  "subdir": "osx-arm64",
+  "fn": "libgettextpo-0.25.1-h7b764f5_0.conda",
+  "md5": "ff87319dec2259db334819119e4a3c2c",
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libgettextpo-0.25.1-h7b764f5_0.conda",
+  "sha256": "990d09632f566d8fa499d67fe53c307ca451065997ef2f0028534608fffa26cc",
+  "arch": "arm64",
+  "platform": "darwin",
+  "depends": [
+    "__osx >=12.1",
+    "libiconv >=1.18,<2.0a0",
+    "libintl 0.25.1 h7b764f5_0"
+  ],
+  "constrains": [],
+  "license": "GPL-3.0-or-later",
+  "timestamp": 1772045341000,
+  "size": 177749,
+  "requested_spec": "pkgs/main/osx-arm64::libgettextpo==0.25.1=h7b764f5_0",
+  "package_tarball_full_path": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libgettextpo-0.25.1-h7b764f5_0.conda",
+  "extracted_package_dir": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libgettextpo-0.25.1-h7b764f5_0",
+  "files": [
+    "lib/libgettextpo.0.dylib"
+  ],
+  "paths_data": {
+    "paths_version": 1,
+    "paths": []
+  },
+  "link": {
+    "source": "/Users/diveshjoshi_25/Desktop/Data/dys_ai_bot/backend/.miniconda3/pkgs/libgettextpo-0.25.1-h7b764f5_0",
+    "type": 1
+  }
+}

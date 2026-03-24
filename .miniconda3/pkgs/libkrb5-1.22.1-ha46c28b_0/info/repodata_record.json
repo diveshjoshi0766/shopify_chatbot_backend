@@ -1,0 +1,24 @@
+{
+  "arch": "arm64",
+  "build": "ha46c28b_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1",
+    "lmdb",
+    "openssl >=3.0.18,<4.0a0"
+  ],
+  "fn": "libkrb5-1.22.1-ha46c28b_0.conda",
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "a13c3f9daedef39783a18da524abcab9",
+  "name": "libkrb5",
+  "platform": "darwin",
+  "sha256": "8e817773f047649d8845345c0549d3028294face363014eba250db48e86fdc21",
+  "size": 665545,
+  "subdir": "osx-arm64",
+  "timestamp": 1768489539000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/libkrb5-1.22.1-ha46c28b_0.conda",
+  "version": "1.22.1"
+}

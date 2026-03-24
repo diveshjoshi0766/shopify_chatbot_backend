@@ -1,0 +1,15 @@
+{
+  "arch": "arm64",
+  "build": "h79febb2_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=11.1"
+  ],
+  "license": "BSD-3-Clause",
+  "license_family": "BSD",
+  "name": "lmdb",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1754999716617,
+  "version": "0.9.31"
+}

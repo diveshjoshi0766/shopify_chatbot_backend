@@ -1,0 +1,16 @@
+{
+  "arch": "arm64",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=12.1",
+    "libiconv >=1.18,<2.0a0",
+    "libintl 0.25.1 h7b764f5_0"
+  ],
+  "license": "LGPL-2.1-or-later",
+  "name": "libintl-devel",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1772045346385,
+  "version": "0.25.1"
+}

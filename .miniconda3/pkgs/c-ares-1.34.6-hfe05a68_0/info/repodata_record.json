@@ -1,0 +1,23 @@
+{
+  "arch": "arm64",
+  "build": "hfe05a68_0",
+  "build_number": 0,
+  "channel": "https://repo.anaconda.com/pkgs/main/osx-arm64/",
+  "constrains": [],
+  "depends": [
+    "__osx >=12.1",
+    "libcxx >=20"
+  ],
+  "fn": "c-ares-1.34.6-hfe05a68_0.conda",
+  "license": "MIT",
+  "license_family": "MIT",
+  "md5": "ceb5c473b56eb1b79fd079f6b0d029df",
+  "name": "c-ares",
+  "platform": "darwin",
+  "sha256": "2947839d4751f848f54672ddc231667b03f2d3ad4979c2bca4911f09de67fe5a",
+  "size": 177571,
+  "subdir": "osx-arm64",
+  "timestamp": 1769077680000,
+  "url": "https://repo.anaconda.com/pkgs/main/osx-arm64/c-ares-1.34.6-hfe05a68_0.conda",
+  "version": "1.34.6"
+}

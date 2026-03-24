@@ -1,0 +1,23 @@
+{
+  "arch": "arm64",
+  "build": "h50c8ec2_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=12.1",
+    "gettext-tools 0.25.1 h61de102_0",
+    "libasprintf 0.25.1 h7b764f5_0",
+    "libasprintf-devel 0.25.1 h7b764f5_0",
+    "libcxx >=20",
+    "libgettextpo 0.25.1 h7b764f5_0",
+    "libgettextpo-devel 0.25.1 h7b764f5_0",
+    "libiconv >=1.18,<2.0a0",
+    "libintl 0.25.1 h7b764f5_0",
+    "libintl-devel 0.25.1 h7b764f5_0"
+  ],
+  "license": "LGPL-2.1-or-later AND GPL-3.0-or-later",
+  "name": "gettext",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1772045399083,
+  "version": "0.25.1"
+}

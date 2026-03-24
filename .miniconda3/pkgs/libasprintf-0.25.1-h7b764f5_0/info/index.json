@@ -1,0 +1,15 @@
+{
+  "arch": "arm64",
+  "build": "h7b764f5_0",
+  "build_number": 0,
+  "depends": [
+    "__osx >=12.1",
+    "libcxx >=20"
+  ],
+  "license": "LGPL-2.1-or-later",
+  "name": "libasprintf",
+  "platform": "osx",
+  "subdir": "osx-arm64",
+  "timestamp": 1772045324221,
+  "version": "0.25.1"
+}
