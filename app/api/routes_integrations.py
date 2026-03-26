@@ -61,4 +61,5 @@ async def shopify_oauth_install_url(
     db.commit()
     install_url = install_url.replace(f"state={nonce}", f"state={state}")
     audit(db, tenant_id=tenant_id, event_type="oauth_install_start", payload={"shop": shop})
+    db.commit()
     return {"install_url": install_url, "tenant_id": tenant_id}

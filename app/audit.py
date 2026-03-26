@@ -16,6 +16,10 @@ def audit(
     user_id: Optional[str] = None,
     store_id: Optional[str] = None,
 ) -> None:
+    """Stage an audit row in the current transaction.
+
+    Callers own transaction boundaries and should commit/rollback.
+    """
     db.add(
         AuditLog(
             tenant_id=tenant_id,
@@ -25,5 +29,4 @@ def audit(
             payload=payload,
         )
     )
-    db.commit()
 

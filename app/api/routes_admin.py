@@ -69,5 +69,6 @@ def import_manual_token(
         event_type="manual_token_import",
         payload={"shop": body.shop_domain, "scopes": body.scopes},
     )
+    db.commit()
     return {"ok": True, "store_id": store.id}
 

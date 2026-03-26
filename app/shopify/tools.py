@@ -241,7 +241,7 @@ def build_shopify_tools(
             summary=summary,
         )
         db.add(pa)
-        db.commit()
+        db.flush()
         audit(
             db,
             tenant_id=actor.tenant_id,
@@ -249,6 +249,7 @@ def build_shopify_tools(
             event_type="pending_action_create",
             payload={"pending_action_id": pa.id, "action_type": action_type},
         )
+        db.commit()
         return {"ok": True, "pending_action_id": pa.id, "summary": summary}
 
     @tool

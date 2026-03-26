@@ -143,6 +143,7 @@ def chat(
         event_type="chat_request",
         payload={"message": body.message, "store_ids": store_ids},
     )
+    db.commit()
 
     mcp_session = getattr(request.app.state, "mcp_session", None)
     checkpointer = getattr(request.app.state, "memory", None)
@@ -231,7 +232,6 @@ def confirm(
 
     if not body.approve:
         pending.status = "cancelled"
-        db.commit()
         audit(
             db,
             tenant_id=actor.tenant_id,
@@ -239,6 +239,7 @@ def confirm(
             event_type="pending_action_cancel",
             payload={"pending_action_id": pending.id},
         )
+        db.commit()
         return ChatResponse(type="message", message="Cancelled.")
 
     # Enforce write authorization on all targeted stores.

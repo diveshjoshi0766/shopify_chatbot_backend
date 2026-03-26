@@ -39,6 +39,7 @@ async def shopify_install(
     # Replace state in URL (build_oauth_install_url returns raw nonce; we store encoded state)
     install_url = install_url.replace(f"state={nonce}", f"state={state}")
     audit(db, tenant_id=tenant_id, event_type="oauth_install_start", payload={"shop": shop})
+    db.commit()
     return {"install_url": install_url}
 
 
@@ -101,5 +102,6 @@ async def shopify_callback(request: Request, db: Session = Depends(get_db)):
         payload={"shop": shop, "scopes": token.scope},
         store_id=store.id,
     )
+    db.commit()
     return {"ok": True, "tenant_id": tenant_id, "shop": shop, "store_id": store.id, "scopes": token.scope}
 
