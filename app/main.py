@@ -53,27 +53,46 @@ async def lifespan(app: FastAPI):
         _log.error("Database init failed — fix DATABASE_URL / remote access. Error: %s", e)
 
     settings = get_settings()
-    mcp_session = None
-    if getattr(settings, "shopify_dev_mcp_enabled", True):
-        _app_log.info("Starting singleton Shopify Dev MCP session (npx @shopify/dev-mcp)...")
-        mcp_session = await asyncio.to_thread(
-            lambda: try_start_shopify_dev_mcp(
-                command=settings.shopify_dev_mcp_command,
-                args=parse_mcp_args(settings.shopify_dev_mcp_args),
-                extra_env=env_block_for_shopify_mcp(settings),
-            )
-        )
-        if mcp_session:
-            _app_log.info("Shopify Dev MCP session ready (singleton, shared across chat requests).")
-        else:
-            _app_log.warning("Shopify Dev MCP session could not start — agent will run without MCP tools.")
-
-    app.state.mcp_session = mcp_session
+    app.state.mcp_session = None
     app.state.memory = MemorySaver()
     _app_log.info("LangGraph MemorySaver initialized (in-process conversation memory).")
 
+    # MCP must not block HTTP bind: Uvicorn only accepts connections after startup completes.
+    if getattr(settings, "shopify_dev_mcp_enabled", True):
+
+        async def _start_mcp_background() -> None:
+            _app_log.info("Starting singleton Shopify Dev MCP session (npx @shopify/dev-mcp) in background...")
+            try:
+                sess = await asyncio.to_thread(
+                    lambda: try_start_shopify_dev_mcp(
+                        command=settings.shopify_dev_mcp_command,
+                        args=parse_mcp_args(settings.shopify_dev_mcp_args),
+                        extra_env=env_block_for_shopify_mcp(settings),
+                    )
+                )
+                app.state.mcp_session = sess
+                if sess:
+                    _app_log.info("Shopify Dev MCP session ready (singleton, shared across chat requests).")
+                else:
+                    _app_log.warning("Shopify Dev MCP session could not start — agent will run without MCP tools.")
+            except Exception:  # noqa: BLE001
+                _app_log.exception("Shopify Dev MCP session failed during startup.")
+
+        app.state._mcp_startup_task = asyncio.create_task(_start_mcp_background())
+    else:
+        _app_log.info("Shopify Dev MCP disabled (SHOPIFY_DEV_MCP_ENABLED=false).")
+
     yield
 
+    mcp_task = getattr(app.state, "_mcp_startup_task", None)
+    if mcp_task is not None and not mcp_task.done():
+        mcp_task.cancel()
+        try:
+            await mcp_task
+        except asyncio.CancelledError:
+            pass
+
+    mcp_session = getattr(app.state, "mcp_session", None)
     if mcp_session is not None:
         _app_log.info("Shutting down singleton Shopify Dev MCP session...")
         mcp_session.close()
