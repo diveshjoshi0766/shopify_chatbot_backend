@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.audit import audit
 from app.models import Role, StoreConnection, User, UserStoreAccess
 
 
@@ -50,4 +52,32 @@ def can_write_store(db: Session, actor: Actor, store_id: str) -> bool:
         select(UserStoreAccess).where(UserStoreAccess.user_id == actor.user_id, UserStoreAccess.store_id == store_id)
     )
     return bool(access and access.can_write)
+
+
+def require_roles(actor: Actor, allowed: tuple[Role, ...], db: Session | None = None) -> None:
+    if actor.role in allowed:
+        return
+    if db is not None:
+        audit(
+            db,
+            tenant_id=actor.tenant_id,
+            user_id=actor.user_id,
+            event_type="authz_deny",
+            payload={"reason": "role_not_allowed", "role": actor.role.value, "allowed": [r.value for r in allowed]},
+        )
+    raise HTTPException(status_code=403, detail="Insufficient role permissions")
+
+
+def require_store_write_access(db: Session, actor: Actor, store_id: str) -> None:
+    if can_write_store(db, actor, store_id):
+        return
+    audit(
+        db,
+        tenant_id=actor.tenant_id,
+        user_id=actor.user_id,
+        store_id=store_id,
+        event_type="authz_deny",
+        payload={"reason": "no_store_write_access"},
+    )
+    raise HTTPException(status_code=403, detail=f"No write access for store {store_id}")
 

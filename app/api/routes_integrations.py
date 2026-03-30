@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_actor_from_headers
+from app.api.deps import get_current_actor
 from app.audit import audit
 from app.authz import Actor, list_accessible_stores
 from app.db import get_db
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/integrations", tags=["integrations"])
 
 @router.get("/shopify/status")
 def shopify_integration_status(
-    actor: Actor = Depends(get_actor_from_headers),
+    actor: Actor = Depends(get_current_actor),
     db: Session = Depends(get_db),
 ):
     """List connected Shopify stores for this user (no tokens returned)."""
@@ -39,7 +39,7 @@ def shopify_integration_status(
 @router.get("/shopify/oauth-install-url")
 async def shopify_oauth_install_url(
     shop: str = Query(..., description="Shop handle or myshopify.com domain"),
-    actor: Actor = Depends(get_actor_from_headers),
+    actor: Actor = Depends(get_current_actor),
     db: Session = Depends(get_db),
 ):
     """
@@ -56,8 +56,8 @@ async def shopify_oauth_install_url(
         install_url, nonce = build_oauth_install_url(shop=shop, tenant_id=tenant_id)
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e)) from e
-    state = encode_oauth_state(tenant_id=tenant_id, state=nonce)
-    db.add(OAuthState(tenant_id=tenant_id, nonce=nonce))
+    state = encode_oauth_state(tenant_id=tenant_id, user_id=actor.user_id, state=nonce)
+    db.add(OAuthState(tenant_id=tenant_id, user_id=actor.user_id, nonce=nonce))
     db.commit()
     install_url = install_url.replace(f"state={nonce}", f"state={state}")
     audit(db, tenant_id=tenant_id, event_type="oauth_install_start", payload={"shop": shop})

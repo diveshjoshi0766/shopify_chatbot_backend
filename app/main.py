@@ -18,6 +18,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 
 from app.api.routes_admin import router as admin_router
+from app.api.routes_auth import router as auth_router
 from app.api.routes_chat import router as chat_router
 from app.api.routes_integrations import router as integrations_router
 from app.api.routes_shopify import router as shopify_router
@@ -174,6 +175,7 @@ def create_app() -> FastAPI:
     app.include_router(integrations_router)
     app.include_router(admin_router)
     app.include_router(chat_router)
+    app.include_router(auth_router)
 
     return app
 

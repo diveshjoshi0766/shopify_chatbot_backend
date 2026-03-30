@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     # CORS — comma-separated origins; set to "*" to allow all (credentials will be disabled).
     cors_origins: str = "http://localhost:8080,http://localhost:3000,http://127.0.0.1:8080,http://127.0.0.1:3000"
 
+    # Auth settings for signed bearer tokens.
+    auth_token_secret: str = "dev-insecure-secret-change-me"
+    auth_token_ttl_seconds: int = 60 * 60 * 8
+    auth_allow_legacy_headers: bool = True
+
 
 def get_settings() -> Settings:
     """Fresh Settings each call so .env changes apply without stale process cache."""

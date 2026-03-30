@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_actor_from_headers
+from app.api.deps import get_current_actor
 from app.audit import audit
-from app.authz import Actor
+from app.authz import Actor, require_roles
 from app.db import get_db
 from app.models import Role, StoreConnection, StoreStatus
 from app.shopify.token_store import upsert_store_token
@@ -25,11 +25,10 @@ class ManualTokenIn(BaseModel):
 @router.post("/stores/manual-token")
 def import_manual_token(
     body: ManualTokenIn,
-    actor: Actor = Depends(get_actor_from_headers),
+    actor: Actor = Depends(get_current_actor),
     db: Session = Depends(get_db),
 ):
-    if actor.role not in (Role.owner, Role.admin):
-        raise HTTPException(status_code=403, detail="Only owner/admin can import tokens")
+    require_roles(actor, (Role.owner, Role.admin), db)
 
     existing = db.scalar(
         select(StoreConnection).where(

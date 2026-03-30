@@ -74,16 +74,23 @@ async def exchange_code_for_token(*, shop: str, code: str) -> TokenExchangeResul
     return TokenExchangeResult(access_token=data["access_token"], scope=scopes)
 
 
-def encode_oauth_state(*, tenant_id: str, state: str) -> str:
-    # Keep it simple: base64url JSON-ish "tenant|state|ts"
+def encode_oauth_state(*, tenant_id: str, user_id: str, state: str) -> str:
+    # Keep it simple: base64url "tenant|user|state|ts"
     ts = str(int(time.time()))
-    raw = f"{tenant_id}|{state}|{ts}".encode("utf-8")
+    raw = f"{tenant_id}|{user_id}|{state}|{ts}".encode("utf-8")
     return base64.urlsafe_b64encode(raw).decode("utf-8").rstrip("=")
 
 
-def decode_oauth_state(state_b64: str) -> tuple[str, str, int]:
+def decode_oauth_state(state_b64: str) -> tuple[str, str, str, int]:
     padded = state_b64 + "=" * ((4 - (len(state_b64) % 4)) % 4)
     raw = base64.urlsafe_b64decode(padded.encode("utf-8")).decode("utf-8")
-    tenant_id, state, ts = raw.split("|")
-    return tenant_id, state, int(ts)
+    parts = raw.split("|")
+    if len(parts) == 4:
+        tenant_id, user_id, state, ts = parts
+        return tenant_id, user_id, state, int(ts)
+    if len(parts) == 3:
+        # Backward compatibility with previously-issued states.
+        tenant_id, state, ts = parts
+        return tenant_id, "", state, int(ts)
+    raise ValueError("Invalid OAuth state")
 

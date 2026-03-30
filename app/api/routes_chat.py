@@ -11,9 +11,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_actor_from_headers
+from app.api.deps import get_current_actor
 from app.audit import audit
-from app.authz import Actor, can_write_store, list_accessible_stores
+from app.authz import Actor, list_accessible_stores, require_store_write_access
 from app.db import get_db
 from app.lang.agent import run_agent
 from app.lang.schemas import ChatRequest, ChatResponse, ConfirmRequest, StoreChoice
@@ -110,7 +110,7 @@ def _resolve_store_ids(db: Session, actor: Actor, req: ChatRequest) -> Union[Lis
 def chat(
     request: Request,
     body: ChatRequest,
-    actor: Actor = Depends(get_actor_from_headers),
+    actor: Actor = Depends(get_current_actor),
     db: Session = Depends(get_db),
 ):
     t0 = time.perf_counter()
@@ -214,7 +214,7 @@ def chat(
 @router.post("/chat/confirm", response_model=ChatResponse)
 def confirm(
     body: ConfirmRequest,
-    actor: Actor = Depends(get_actor_from_headers),
+    actor: Actor = Depends(get_current_actor),
     db: Session = Depends(get_db),
 ):
     _log.info(
@@ -244,8 +244,7 @@ def confirm(
 
     # Enforce write authorization on all targeted stores.
     for sid in pending.store_ids:
-        if not can_write_store(db, actor, sid):
-            raise HTTPException(status_code=403, detail=f"No write access for store {sid}")
+        require_store_write_access(db, actor, sid)
 
     stores = list(
         db.scalars(

@@ -6,7 +6,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.api.deps import get_current_actor
 from app.audit import audit
+from app.authz import Actor
 from app.db import get_db
 from app.models import OAuthState, StoreConnection, StoreStatus
 from app.settings import get_settings
@@ -25,20 +27,27 @@ router = APIRouter(prefix="/shopify", tags=["shopify"])
 
 @router.get("/install")
 async def shopify_install(
-    tenant_id: str = Query(...),
     shop: str = Query(...),
+    actor: Actor = Depends(get_current_actor),
     db: Session = Depends(get_db),
 ):
     """
-    Starts OAuth for a specific shop. The caller must provide a tenant_id (your system).
+    Starts OAuth for a specific shop in the authenticated tenant context.
     """
+    tenant_id = actor.tenant_id
     install_url, nonce = build_oauth_install_url(shop=shop, tenant_id=tenant_id)
-    state = encode_oauth_state(tenant_id=tenant_id, state=nonce)
-    db.add(OAuthState(tenant_id=tenant_id, nonce=nonce))
+    state = encode_oauth_state(tenant_id=tenant_id, user_id=actor.user_id, state=nonce)
+    db.add(OAuthState(tenant_id=tenant_id, user_id=actor.user_id, nonce=nonce))
     db.commit()
     # Replace state in URL (build_oauth_install_url returns raw nonce; we store encoded state)
     install_url = install_url.replace(f"state={nonce}", f"state={state}")
-    audit(db, tenant_id=tenant_id, event_type="oauth_install_start", payload={"shop": shop})
+    audit(
+        db,
+        tenant_id=tenant_id,
+        user_id=actor.user_id,
+        event_type="oauth_install_start",
+        payload={"shop": shop},
+    )
     db.commit()
     return {"install_url": install_url}
 
@@ -57,8 +66,14 @@ async def shopify_callback(request: Request, db: Session = Depends(get_db)):
     if not shop or not code or not state:
         raise HTTPException(status_code=400, detail="Missing shop/code/state")
 
-    tenant_id, nonce, _ts = decode_oauth_state(state)
-    state_row = db.scalar(select(OAuthState).where(OAuthState.tenant_id == tenant_id, OAuthState.nonce == nonce))
+    tenant_id, user_id, nonce, _ts = decode_oauth_state(state)
+    state_row = db.scalar(
+        select(OAuthState).where(
+            OAuthState.tenant_id == tenant_id,
+            OAuthState.user_id == user_id,
+            OAuthState.nonce == nonce,
+        )
+    )
     if not state_row:
         raise HTTPException(status_code=400, detail="Invalid OAuth state")
     db.delete(state_row)
@@ -98,6 +113,7 @@ async def shopify_callback(request: Request, db: Session = Depends(get_db)):
     audit(
         db,
         tenant_id=tenant_id,
+        user_id=user_id or None,
         event_type="oauth_install_complete",
         payload={"shop": shop, "scopes": token.scope},
         store_id=store.id,
