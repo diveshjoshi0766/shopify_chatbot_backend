@@ -17,9 +17,8 @@ from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.errors import GraphRecursionError
 from langgraph.prebuilt import create_react_agent
-from sqlalchemy.orm import Session
-
 from app.authz import Actor
+from app.mongo_repository import MongoRepository
 from app.settings import get_settings
 from app.shopify.mcp_dev import ShopifyDevMCPSession
 from app.shopify.tools import build_shopify_tools
@@ -82,12 +81,23 @@ def _llm() -> ChatOpenAI:
     return ChatOpenAI(model="gpt-4o-mini", temperature=0, api_key=key)
 
 
+def _tool_call_names(tool_calls: list[dict[str, Any]]) -> list[str]:
+    names: list[str] = []
+    for tc in tool_calls:
+        if isinstance(tc, dict) and tc.get("name"):
+            names.append(str(tc["name"]))
+        elif hasattr(tc, "name"):
+            names.append(str(getattr(tc, "name", "")))
+    return [n for n in names if n]
+
+
 def run_agent(
-    db: Session,
+    db: MongoRepository,
     *,
     actor: Actor,
     store_ids: list[str],
     user_message: str,
+    conversation_id: str,
     mcp_session: Optional[ShopifyDevMCPSession] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ) -> AgentResult:
@@ -100,7 +110,21 @@ def run_agent(
     t0 = time.perf_counter()
 
     active_mcp = mcp_session if (mcp_session and mcp_session.is_alive()) else None
-    tools = build_shopify_tools(db, actor=actor, store_ids=store_ids, mcp_session=active_mcp)
+    _log.info(
+        "agent_start tenant=%s user=%s conv=%s store_ids=%d mcp_attached=%s",
+        actor.tenant_id,
+        actor.user_id,
+        conversation_id,
+        len(store_ids),
+        bool(active_mcp),
+    )
+    tools = build_shopify_tools(
+        db,
+        actor=actor,
+        store_ids=store_ids,
+        mcp_session=active_mcp,
+        conversation_id=conversation_id,
+    )
 
     agent = create_react_agent(
         _llm(),
@@ -110,7 +134,7 @@ def run_agent(
     )
 
     config = {
-        "configurable": {"thread_id": f"{actor.tenant_id}:{actor.user_id}"},
+        "configurable": {"thread_id": f"{actor.tenant_id}:{actor.user_id}:{conversation_id}"},
         "recursion_limit": 28,
     }
 
@@ -136,11 +160,26 @@ def run_agent(
         for m in messages:
             if getattr(m, "tool_calls", None):
                 tool_calls.extend(m.tool_calls)
+        tnames = _tool_call_names(tool_calls)
+        mcp_n = sum(1 for n in tnames if n.startswith("shopify_dev_"))
+        admin_n = len(tnames) - mcp_n
         if not last_text:
             last_text = "I gathered some information but couldn't finalize an answer in time. Please try a more specific question."
         ms = (time.perf_counter() - t0) * 1000
-        _log.info("agent_done tenant=%s user=%s stores=%d ms=%.0f tools=recursion_limit mcp=%s",
-                   actor.tenant_id, actor.user_id, len(store_ids), ms, bool(active_mcp))
+        _log.info(
+            "agent_done tenant=%s user=%s conv=%s stores=%d ms=%.0f phase=recursion_limit "
+            "mcp_session_alive=%s tool_calls_total=%d mcp_tools=%d admin_tools=%d names=%s",
+            actor.tenant_id,
+            actor.user_id,
+            conversation_id,
+            len(store_ids),
+            ms,
+            bool(active_mcp),
+            len(tnames),
+            mcp_n,
+            admin_n,
+            tnames,
+        )
         return AgentResult(text=last_text, tool_calls=tool_calls)
 
     messages = result.get("messages", [])
@@ -149,21 +188,23 @@ def run_agent(
     for m in messages:
         if getattr(m, "tool_calls", None):
             tool_calls_out.extend(m.tool_calls)
-    names: list[str] = []
-    for tc in tool_calls_out:
-        if isinstance(tc, dict) and tc.get("name"):
-            names.append(str(tc["name"]))
-        elif hasattr(tc, "name"):
-            names.append(str(getattr(tc, "name", "")))
+    names = _tool_call_names(tool_calls_out)
+    mcp_n = sum(1 for n in names if n.startswith("shopify_dev_"))
+    admin_n = len(names) - mcp_n
     ms = (time.perf_counter() - t0) * 1000
     _log.info(
-        "agent_done tenant=%s user=%s stores=%d ms=%.0f tools=%s mcp=%s",
+        "agent_done tenant=%s user=%s conv=%s stores=%d ms=%.0f mcp_session_alive=%s "
+        "tool_calls_total=%d mcp_tools=%d admin_tools=%d names=%s",
         actor.tenant_id,
         actor.user_id,
+        conversation_id,
         len(store_ids),
         ms,
-        names or [],
         bool(active_mcp),
+        len(names),
+        mcp_n,
+        admin_n,
+        names,
     )
     return AgentResult(text=last, tool_calls=tool_calls_out)
 

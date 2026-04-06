@@ -22,6 +22,8 @@ ENV/
 
 # --- Databases (local / dev) ---
 *.db
+*.db-shm
+*.db-wal
 *.sqlite3
 
 # --- App data (real tokens — never commit) ---

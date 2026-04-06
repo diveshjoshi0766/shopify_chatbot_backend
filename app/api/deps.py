@@ -3,16 +3,16 @@ from __future__ import annotations
 from typing import Optional
 
 from fastapi import Depends, Header, HTTPException
-from sqlalchemy.orm import Session
 
 from app.auth import verify_access_token
 from app.authz import Actor, get_actor
 from app.db import get_db
+from app.mongo_repository import MongoRepository
 from app.settings import get_settings
 
 
 def get_actor_from_headers(
-    db: Session = Depends(get_db),
+    db: MongoRepository = Depends(get_db),
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-Id"),
     x_user_id: Optional[str] = Header(default=None, alias="X-User-Id"),
 ) -> Actor:
@@ -25,7 +25,7 @@ def get_actor_from_headers(
 
 
 def get_current_actor(
-    db: Session = Depends(get_db),
+    db: MongoRepository = Depends(get_db),
     authorization: Optional[str] = Header(default=None, alias="Authorization"),
     x_tenant_id: Optional[str] = Header(default=None, alias="X-Tenant-Id"),
     x_user_id: Optional[str] = Header(default=None, alias="X-User-Id"),
@@ -44,4 +44,3 @@ def get_current_actor(
         return get_actor_from_headers(db=db, x_tenant_id=x_tenant_id, x_user_id=x_user_id)
 
     raise HTTPException(status_code=401, detail="Missing bearer token")
-

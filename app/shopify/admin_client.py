@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 import time
 from dataclasses import dataclass
 from typing import Any, Optional
@@ -10,6 +11,32 @@ import httpx
 from app.settings import get_settings
 
 _log = logging.getLogger(__name__)
+
+_GQL_OP_RE = re.compile(r"\b(query|mutation|subscription)\s+(\w+)", re.IGNORECASE)
+
+
+def _graphql_op_hint(query: str) -> str:
+    """Short label for logs (no secrets)."""
+    if not (query or "").strip():
+        return "empty"
+    for raw in query.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        m = _GQL_OP_RE.search(line)
+        if m:
+            return f"{m.group(1).lower()} {m.group(2)}"
+        return line[:100] + ("…" if len(line) > 100 else "")
+    return "unknown"
+
+
+def _variable_keys_preview(variables: Optional[dict[str, Any]], *, limit: int = 12) -> str:
+    if not variables:
+        return "[]"
+    keys = list(variables.keys())[:limit]
+    more = len(variables) - len(keys)
+    suffix = f" +{more} more" if more > 0 else ""
+    return str(keys) + suffix
 
 
 @dataclass(frozen=True)
@@ -34,6 +61,14 @@ class ShopifyAdminClient:
             "Content-Type": "application/json",
         }
         payload = {"query": query, "variables": variables or {}}
+        vars_for_log = variables or {}
+        _log.info(
+            "shopify_admin_graphql request shop=%s url_tail=/admin/api/%s/graphql.json op_hint=%s variable_keys=%s",
+            self.session.shop_domain,
+            self.settings.shopify_admin_api_version,
+            _graphql_op_hint(query),
+            _variable_keys_preview(vars_for_log),
+        )
 
         # Simple throttling/backoff loop.
         for attempt in range(5):

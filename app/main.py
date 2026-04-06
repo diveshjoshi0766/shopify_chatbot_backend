@@ -1,7 +1,7 @@
 """
 FastAPI application factory and lifespan for the Shopify multi-store LangChain chatbot.
 
-Manages CORS, database init, singleton Shopify Dev MCP session, and
+Manages CORS, MongoDB init/indexes, singleton Shopify Dev MCP session, and
 in-process conversation memory (LangGraph MemorySaver).
 """
 from __future__ import annotations
@@ -14,17 +14,16 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from langgraph.checkpoint.memory import MemorySaver
-from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
+from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 from app.api.routes_admin import router as admin_router
 from app.api.routes_auth import router as auth_router
 from app.api.routes_chat import router as chat_router
 from app.api.routes_integrations import router as integrations_router
 from app.api.routes_shopify import router as shopify_router
-from app.db import engine
+from app.bootstrap_admin import ensure_bootstrap_admin_user
+from app.db import ensure_mongo_schema, get_tool_repository
 from app.logging_config import setup_integration_logging
-from app.models import Base
 from app.settings import get_settings
 from app.shopify.mcp_dev import (
     env_block_for_shopify_mcp,
@@ -48,17 +47,17 @@ async def lifespan(app: FastAPI):
     )
 
     try:
-        await asyncio.to_thread(lambda: Base.metadata.create_all(bind=engine))
-        _log.info("Database tables ready.")
+        await asyncio.to_thread(ensure_mongo_schema)
+        _log.info("MongoDB indexes ready.")
+        await asyncio.to_thread(ensure_bootstrap_admin_user)
     except Exception as e:  # noqa: BLE001
-        _log.error("Database init failed — fix DATABASE_URL / remote access. Error: %s", e)
+        _log.error("MongoDB init failed — fix MONGODB_URI / network / Atlas access. Error: %s", e)
 
     settings = get_settings()
     app.state.mcp_session = None
     app.state.memory = MemorySaver()
     _app_log.info("LangGraph MemorySaver initialized (in-process conversation memory).")
 
-    # MCP must not block HTTP bind: Uvicorn only accepts connections after startup completes.
     if getattr(settings, "shopify_dev_mcp_enabled", True):
 
         async def _start_mcp_background() -> None:
@@ -103,17 +102,19 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(title="Shopify multi-store LangChain chatbot", lifespan=lifespan)
 
-    @app.exception_handler(OperationalError)
-    async def db_operational_error(_request: Request, exc: OperationalError):
-        orig = getattr(exc, "orig", None)
-        msg = str(orig) if orig is not None else str(exc)
-        return JSONResponse(
-            status_code=503,
-            content={
-                "detail": "Database unavailable. For local dev set DATABASE_URL=sqlite:///./dev.db in backend/.env. For MySQL, fix password and remote IP access.",
-                "error": msg,
-            },
-        )
+    @app.exception_handler(PyMongoError)
+    async def mongo_error_handler(_request: Request, exc: PyMongoError):
+        msg = str(exc)
+        if isinstance(exc, ServerSelectionTimeoutError) or "ServerSelectionTimeoutError" in type(exc).__name__:
+            detail = (
+                "Cannot reach MongoDB (timeout). Check MONGODB_URI, Atlas IP allowlist, and network. "
+                "See backend/.env MONGODB_URI."
+            )
+        elif "authentication failed" in msg.lower() or "bad auth" in msg.lower():
+            detail = "MongoDB authentication failed — check username/password in MONGODB_URI."
+        else:
+            detail = "MongoDB error. Verify MONGODB_URI and that the cluster is reachable."
+        return JSONResponse(status_code=503, content={"detail": detail, "error": msg})
 
     settings = get_settings()
     raw_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
@@ -138,8 +139,7 @@ def create_app() -> FastAPI:
         db_ok = False
         db_detail: str | None = None
         try:
-            with engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
+            get_tool_repository().ping()
             db_ok = True
         except Exception as e:  # noqa: BLE001
             db_detail = str(e)
@@ -147,6 +147,7 @@ def create_app() -> FastAPI:
         mcp_session = getattr(app.state, "mcp_session", None)
         integrations = {
             "database": "connected" if db_ok else "error",
+            "mongodb_collection": settings.mongodb_collection,
             "openai_api_key_configured": openai_ok,
             "shopify_oauth_app_configured": shopify_app_ok,
             "shopify_admin_api_version": settings.shopify_admin_api_version,
@@ -181,4 +182,3 @@ def create_app() -> FastAPI:
 
 
 app = create_app()
-

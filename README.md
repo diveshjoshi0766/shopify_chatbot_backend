@@ -25,15 +25,14 @@ Create a `.env` in `backend/` (do not commit it) with:
 
 ```bash
 APP_ENV=dev
-# SQLite (default if unset): sqlite:///./dev.db
-# MySQL: mysql://user:pass@host:3306/dbname  (auto-converted to mysql+pymysql://)
-# Postgres: postgresql+psycopg://postgres:postgres@localhost:5432/shopify_chatbot
-DATABASE_URL=mysql://user:password@host:3306/your_database
+# MongoDB — database name is taken from the URI path unless MONGODB_DATABASE is set.
+MONGODB_URI=mongodb+srv://USER:PASSWORD@cluster.mongodb.net/YourDatabase?retryWrites=true&w=majority
+MONGODB_COLLECTION=dyspensr_ai_bot
 ENCRYPTION_KEY_BASE64=...
 
 SHOPIFY_APP_CLIENT_ID=...
 SHOPIFY_APP_CLIENT_SECRET=...
-SHOPIFY_APP_REDIRECT_URI=http://localhost:8000/shopify/callback
+SHOPIFY_APP_REDIRECT_URI=http://127.0.0.1:8004/shopify/callback
 SHOPIFY_APP_SCOPES=read_products,read_orders,read_customers,read_inventory,write_products,write_inventory,write_orders,write_customers
 
 OPENAI_API_KEY=...
@@ -53,7 +52,7 @@ python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().d
 ### Run
 
 ```bash
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8004
 ```
 
 ### Logs and health checks

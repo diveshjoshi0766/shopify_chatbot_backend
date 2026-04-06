@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_actor
 from app.audit import audit
 from app.authz import Actor, list_accessible_stores
 from app.db import get_db
-from app.models import OAuthState
+from app.mongo_repository import MongoRepository
 from app.settings import get_settings
 from app.shopify.oauth import build_oauth_install_url, encode_oauth_state
 
@@ -17,7 +16,7 @@ router = APIRouter(prefix="/integrations", tags=["integrations"])
 @router.get("/shopify/status")
 def shopify_integration_status(
     actor: Actor = Depends(get_current_actor),
-    db: Session = Depends(get_db),
+    db: MongoRepository = Depends(get_db),
 ):
     """List connected Shopify stores for this user (no tokens returned)."""
     stores = list_accessible_stores(db, actor)
@@ -40,7 +39,7 @@ def shopify_integration_status(
 async def shopify_oauth_install_url(
     shop: str = Query(..., description="Shop handle or myshopify.com domain"),
     actor: Actor = Depends(get_current_actor),
-    db: Session = Depends(get_db),
+    db: MongoRepository = Depends(get_db),
 ):
     """
     Build Shopify OAuth install URL for the authenticated tenant (same flow as GET /shopify/install).
@@ -57,9 +56,13 @@ async def shopify_oauth_install_url(
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e)) from e
     state = encode_oauth_state(tenant_id=tenant_id, user_id=actor.user_id, state=nonce)
-    db.add(OAuthState(tenant_id=tenant_id, user_id=actor.user_id, nonce=nonce))
-    db.commit()
+    db.insert_oauth_state(tenant_id=tenant_id, user_id=actor.user_id, nonce=nonce)
     install_url = install_url.replace(f"state={nonce}", f"state={state}")
-    audit(db, tenant_id=tenant_id, event_type="oauth_install_start", payload={"shop": shop})
-    db.commit()
+    audit(
+        db,
+        tenant_id=tenant_id,
+        user_id=actor.user_id,
+        event_type="oauth_install_start",
+        payload={"shop": shop},
+    )
     return {"install_url": install_url, "tenant_id": tenant_id}

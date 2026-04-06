@@ -4,12 +4,11 @@ import json
 import logging
 import re
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any, List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_actor
 from app.audit import audit
@@ -17,7 +16,8 @@ from app.authz import Actor, list_accessible_stores, require_store_write_access
 from app.db import get_db
 from app.lang.agent import run_agent
 from app.lang.schemas import ChatRequest, ChatResponse, ConfirmRequest, StoreChoice
-from app.models import PendingAction, StoreConnection
+from app.models import Conversation
+from app.mongo_repository import MongoRepository
 from app.shopify.admin_client import ShopifyAdminClient, ShopifyAdminSession
 from app.shopify.executor import execute_pending_action
 from app.shopify.token_store import get_access_token_for_store
@@ -36,7 +36,6 @@ def _normalize_shop_domain(value: Optional[str]) -> Optional[str]:
     if not value or not str(value).strip():
         return None
     s = str(value).strip().lower()
-    # Common typo: ...myshopify.  (missing "com")
     if s.endswith(".myshopify.") and not s.endswith(".myshopify.com"):
         s = s + "com"
     if ".myshopify.com" not in s and re.match(r"^[a-z0-9][a-z0-9-]*$", s):
@@ -45,14 +44,65 @@ def _normalize_shop_domain(value: Optional[str]) -> Optional[str]:
 
 
 def _metadata_safe(tool_calls: list[Any]) -> dict[str, Any]:
-    """Ensure response JSON encodes (LangChain tool payloads may contain non-JSON types)."""
     try:
         return json.loads(json.dumps({"tool_calls": tool_calls or []}, default=str))
     except Exception:  # noqa: BLE001
         return {"tool_calls": []}
 
 
-def _resolve_store_ids(db: Session, actor: Actor, req: ChatRequest) -> Union[List[str], ChatResponse]:
+def _ensure_conversation(db: MongoRepository, actor: Actor, conversation_id: Optional[str]) -> Conversation:
+    cid = (conversation_id or "").strip()
+    if cid:
+        conv = db.get_conversation(cid)
+        if conv is not None:
+            if conv.tenant_id != actor.tenant_id or conv.user_id != actor.user_id:
+                raise HTTPException(status_code=404, detail="Conversation not found")
+            return conv
+        return db.insert_conversation(
+            conversation_id=cid,
+            tenant_id=actor.tenant_id,
+            user_id=actor.user_id,
+            title=None,
+        )
+    return db.insert_conversation(
+        conversation_id=str(uuid.uuid4()),
+        tenant_id=actor.tenant_id,
+        user_id=actor.user_id,
+        title=None,
+    )
+
+
+def _maybe_set_title_from_message(db: MongoRepository, conv: Conversation, message: str) -> None:
+    if conv.title:
+        return
+    m = (message or "").strip().replace("\n", " ")
+    if not m:
+        return
+    title = m[:120] + ("..." if len(m) > 120 else "")
+    db.update_conversation(conv.id, {"title": title})
+
+
+def _append_conversation_message(
+    db: MongoRepository,
+    *,
+    conversation_id: str,
+    role: str,
+    content: str,
+    metadata: Optional[dict[str, Any]] = None,
+) -> None:
+    db.insert_conversation_message(
+        conversation_id=conversation_id,
+        role=role,
+        content=content,
+        message_metadata=metadata,
+    )
+
+
+def _with_conversation_id(resp: ChatResponse, conversation_id: str) -> ChatResponse:
+    return resp.model_copy(update={"conversation_id": conversation_id})
+
+
+def _resolve_store_ids(db: MongoRepository, actor: Actor, req: ChatRequest) -> Union[List[str], ChatResponse]:
     stores = list_accessible_stores(db, actor)
     if not stores:
         return ChatResponse(type="message", message="No Shopify stores are connected for your tenant.")
@@ -111,15 +161,18 @@ def chat(
     request: Request,
     body: ChatRequest,
     actor: Actor = Depends(get_current_actor),
-    db: Session = Depends(get_db),
+    db: MongoRepository = Depends(get_db),
 ):
     t0 = time.perf_counter()
     body = body.model_copy(update={"shop_domain": _normalize_shop_domain(body.shop_domain)})
     msg = body.message or ""
+    conv = _ensure_conversation(db, actor, body.conversation_id)
+    cid = conv.id
     _log.info(
-        "chat_start tenant=%s user=%s msg_len=%d store_id=%s shop_domain=%s",
+        "chat_start tenant=%s user=%s conv=%s msg_len=%d store_id=%s shop_domain=%s",
         actor.tenant_id,
         actor.user_id,
+        cid,
         len(msg),
         body.store_id or "",
         body.shop_domain or "",
@@ -127,23 +180,33 @@ def chat(
     store_ids_or_resp = _resolve_store_ids(db, actor, body)
     if isinstance(store_ids_or_resp, ChatResponse):
         _log.info(
-            "chat_end tenant=%s user=%s phase=early_response type=%s ms=%.0f",
+            "chat_end tenant=%s user=%s conv=%s phase=early_response type=%s ms=%.0f",
             actor.tenant_id,
             actor.user_id,
+            cid,
             store_ids_or_resp.type,
             (time.perf_counter() - t0) * 1000,
         )
-        return store_ids_or_resp
+        if not body.skip_user_message_persist:
+            _append_conversation_message(db, conversation_id=cid, role="user", content=body.message)
+            _maybe_set_title_from_message(db, conv, body.message)
+        db.update_conversation(cid, {})
+        return _with_conversation_id(store_ids_or_resp, cid)
+
     store_ids = store_ids_or_resp
+
+    if not body.skip_user_message_persist:
+        _append_conversation_message(db, conversation_id=cid, role="user", content=body.message)
+        _maybe_set_title_from_message(db, conv, body.message)
+    db.update_conversation(cid, {})
 
     audit(
         db,
         tenant_id=actor.tenant_id,
         user_id=actor.user_id,
         event_type="chat_request",
-        payload={"message": body.message, "store_ids": store_ids},
+        payload={"message": body.message, "store_ids": store_ids, "conversation_id": cid},
     )
-    db.commit()
 
     mcp_session = getattr(request.app.state, "mcp_session", None)
     checkpointer = getattr(request.app.state, "memory", None)
@@ -154,36 +217,41 @@ def chat(
             actor=actor,
             store_ids=store_ids,
             user_message=body.message,
+            conversation_id=cid,
             mcp_session=mcp_session,
             checkpointer=checkpointer,
         )
     except Exception as e:  # noqa: BLE001
         _log.exception(
-            "chat_agent_error tenant=%s user=%s stores=%s",
+            "chat_agent_error tenant=%s user=%s conv=%s stores=%s",
             actor.tenant_id,
             actor.user_id,
+            cid,
             store_ids,
         )
         raise HTTPException(status_code=500, detail=f"Agent error: {e}") from e
+
+    assistant_meta = _metadata_safe(result.tool_calls)
+    _append_conversation_message(
+        db,
+        conversation_id=cid,
+        role="assistant",
+        content=result.text or "",
+        metadata=assistant_meta,
+    )
+    db.update_conversation(cid, {})
 
     if any(
         isinstance(tc, dict) and (tc.get("name") or "").startswith("propose_")
         for tc in (result.tool_calls or [])
     ):
-        pending = db.scalar(
-            select(PendingAction)
-            .where(
-                PendingAction.tenant_id == actor.tenant_id,
-                PendingAction.user_id == actor.user_id,
-                PendingAction.status == "pending",
-            )
-            .order_by(PendingAction.created_at.desc())
-        )
+        pending = db.find_latest_pending_for_conversation(actor.tenant_id, actor.user_id, cid)
         if pending:
             _log.info(
-                "chat_end tenant=%s user=%s phase=needs_confirmation pending_id=%s ms=%.0f tool_calls=%d",
+                "chat_end tenant=%s user=%s conv=%s phase=needs_confirmation pending_id=%s ms=%.0f tool_calls=%d",
                 actor.tenant_id,
                 actor.user_id,
+                cid,
                 pending.id,
                 (time.perf_counter() - t0) * 1000,
                 len(result.tool_calls or []),
@@ -191,14 +259,16 @@ def chat(
             return ChatResponse(
                 type="needs_confirmation",
                 message="I can make this change, but I need your confirmation first.",
+                conversation_id=cid,
                 pending_action_id=pending.id,
                 pending_action_summary=pending.summary,
-                metadata=_metadata_safe(result.tool_calls),
+                metadata=assistant_meta,
             )
     _log.info(
-        "chat_end tenant=%s user=%s phase=message stores=%s ms=%.0f tool_calls=%d reply_len=%d",
+        "chat_end tenant=%s user=%s conv=%s phase=message stores=%s ms=%.0f tool_calls=%d reply_len=%d",
         actor.tenant_id,
         actor.user_id,
+        cid,
         store_ids,
         (time.perf_counter() - t0) * 1000,
         len(result.tool_calls or []),
@@ -207,7 +277,8 @@ def chat(
     return ChatResponse(
         type="message",
         message=result.text or "",
-        metadata=_metadata_safe(result.tool_calls),
+        conversation_id=cid,
+        metadata=assistant_meta,
     )
 
 
@@ -215,7 +286,7 @@ def chat(
 def confirm(
     body: ConfirmRequest,
     actor: Actor = Depends(get_current_actor),
-    db: Session = Depends(get_db),
+    db: MongoRepository = Depends(get_db),
 ):
     _log.info(
         "chat_confirm tenant=%s user=%s pending_action_id=%s approve=%s",
@@ -224,14 +295,25 @@ def confirm(
         body.pending_action_id,
         body.approve,
     )
-    pending = db.get(PendingAction, body.pending_action_id)
+    pending = db.get_pending_action(body.pending_action_id)
     if not pending or pending.tenant_id != actor.tenant_id or pending.user_id != actor.user_id:
         raise HTTPException(status_code=404, detail="Pending action not found")
+    if pending.conversation_id:
+        req_cid = (body.conversation_id or "").strip()
+        if req_cid != pending.conversation_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Pending action does not belong to this conversation",
+            )
     if pending.status != "pending":
-        return ChatResponse(type="message", message=f"Pending action already {pending.status}.")
+        return ChatResponse(
+            type="message",
+            message=f"Pending action already {pending.status}.",
+            conversation_id=pending.conversation_id,
+        )
 
     if not body.approve:
-        pending.status = "cancelled"
+        db.update_pending_action(pending.id, {"status": "cancelled"})
         audit(
             db,
             tenant_id=actor.tenant_id,
@@ -239,20 +321,21 @@ def confirm(
             event_type="pending_action_cancel",
             payload={"pending_action_id": pending.id},
         )
-        db.commit()
-        return ChatResponse(type="message", message="Cancelled.")
+        if pending.conversation_id:
+            _append_conversation_message(
+                db,
+                conversation_id=pending.conversation_id,
+                role="assistant",
+                content="Cancelled.",
+                metadata={"pending_action_id": pending.id, "approved": False},
+            )
+            db.update_conversation(pending.conversation_id, {})
+        return ChatResponse(type="message", message="Cancelled.", conversation_id=pending.conversation_id)
 
-    # Enforce write authorization on all targeted stores.
     for sid in pending.store_ids:
         require_store_write_access(db, actor, sid)
 
-    stores = list(
-        db.scalars(
-            select(StoreConnection).where(
-                StoreConnection.tenant_id == actor.tenant_id, StoreConnection.id.in_(pending.store_ids)
-            )
-        ).all()
-    )
+    stores = db.get_stores_by_ids(actor.tenant_id, pending.store_ids)
     store_by_id = {s.id: s for s in stores}
 
     results: list[dict] = []
@@ -285,10 +368,28 @@ def confirm(
                 payload={"pending_action_id": pending.id, "action_type": pending.action_type, "error": str(e)},
             )
 
-    pending.status = "executed"
-    pending.executed_at = datetime.now(timezone.utc)
-    db.commit()
+    db.update_pending_action(
+        pending.id,
+        {"status": "executed", "executed_at": datetime.now(timezone.utc)},
+    )
     ok_count = sum(1 for r in results if r.get("ok"))
+    if ok_count == len(results) and results:
+        summary_text = "Executed."
+    elif ok_count == 0:
+        parts = [f"{r.get('store_id')}: {r.get('error', 'failed')}" for r in results if not r.get("ok")]
+        summary_text = "Failed: " + " | ".join(parts) if parts else "Failed."
+    else:
+        summary_text = f"Partial: {ok_count}/{len(results)} store(s) succeeded. See metadata for errors."
+
+    if pending.conversation_id:
+        _append_conversation_message(
+            db,
+            conversation_id=pending.conversation_id,
+            role="assistant",
+            content=summary_text,
+            metadata={"results": results, "pending_action_id": pending.id},
+        )
+        db.update_conversation(pending.conversation_id, {})
     _log.info(
         "chat_confirm_done tenant=%s user=%s pending_action_id=%s stores_ok=%d/%d",
         actor.tenant_id,
@@ -297,5 +398,9 @@ def confirm(
         ok_count,
         len(results),
     )
-    return ChatResponse(type="message", message="Executed.", metadata={"results": results})
-
+    return ChatResponse(
+        type="message",
+        message=summary_text,
+        conversation_id=pending.conversation_id,
+        metadata={"results": results},
+    )

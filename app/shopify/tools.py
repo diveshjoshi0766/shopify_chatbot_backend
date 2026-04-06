@@ -3,16 +3,18 @@ from __future__ import annotations
 import json
 import logging
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from app.mongo_repository import MongoRepository
 
 from langchain_core.tools import tool
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from app.audit import audit
 from app.authz import Actor, can_write_store
+from app.db import get_tool_repository
 from app.lang.policy import check_write_policy
-from app.models import PendingAction, StoreConnection
+from app.models import StoreConnection
 from app.shopify.admin_client import ShopifyAdminClient, ShopifyAdminSession
 from app.shopify.mcp_dev import ShopifyDevMCPSession
 from app.shopify.token_store import get_access_token_for_store
@@ -67,11 +69,12 @@ def _cap_introspection_payload(data: dict[str, Any], *, max_fields: int) -> dict
 
 
 def build_shopify_tools(
-    db: Session,
+    db: "MongoRepository",
     *,
     actor: Actor,
     store_ids: list[str],
     mcp_session: ShopifyDevMCPSession | None = None,
+    conversation_id: str | None = None,
 ) -> list[Any]:
     """
     Tool registry for the agent.
@@ -80,11 +83,7 @@ def build_shopify_tools(
     for docs and official GraphQL schema discovery; store data still uses Admin API tools below.
     """
 
-    stores = list(
-        db.scalars(
-            select(StoreConnection).where(StoreConnection.tenant_id == actor.tenant_id, StoreConnection.id.in_(store_ids))
-        ).all()
-    )
+    stores = db.get_stores_by_ids(actor.tenant_id, store_ids)
     store_by_id = {s.id: s for s in stores}
 
     def _admin_client(store_id: str) -> ShopifyAdminClient:
@@ -229,28 +228,37 @@ def build_shopify_tools(
         decision = check_write_policy(action_type, payload)
         if not decision.allowed:
             return {"ok": False, "reason": decision.reason}
-        for sid in store_ids:
-            if not can_write_store(db, actor, sid):
-                return {"ok": False, "reason": f"No write access for store {sid}"}
-        pa = PendingAction(
-            tenant_id=actor.tenant_id,
-            user_id=actor.user_id,
-            store_ids=store_ids,
-            action_type=action_type,
-            tool_payload=payload,
-            summary=summary,
-        )
-        db.add(pa)
-        db.flush()
-        audit(
-            db,
-            tenant_id=actor.tenant_id,
-            user_id=actor.user_id,
-            event_type="pending_action_create",
-            payload={"pending_action_id": pa.id, "action_type": action_type},
-        )
-        db.commit()
-        return {"ok": True, "pending_action_id": pa.id, "summary": summary}
+        # LangGraph ToolNode runs tools in a thread pool; the FastAPI request Session is not
+        # thread-safe and must not be used from tool workers (SQLite → OperationalError / 503).
+        tool_db = get_tool_repository()
+        try:
+            for sid in store_ids:
+                if not can_write_store(tool_db, actor, sid):
+                    return {"ok": False, "reason": f"No write access for store {sid}"}
+            pa = tool_db.insert_pending_action(
+                tenant_id=actor.tenant_id,
+                user_id=actor.user_id,
+                conversation_id=conversation_id,
+                store_ids=store_ids,
+                action_type=action_type,
+                tool_payload=payload,
+                summary=summary,
+            )
+            audit(
+                tool_db,
+                tenant_id=actor.tenant_id,
+                user_id=actor.user_id,
+                event_type="pending_action_create",
+                payload={
+                    "pending_action_id": pa.id,
+                    "action_type": action_type,
+                    "conversation_id": conversation_id,
+                },
+            )
+            return {"ok": True, "pending_action_id": pa.id, "summary": summary}
+        except Exception as e:  # noqa: BLE001
+            _log.warning("pending_action_create failed: %s", e, exc_info=True)
+            return {"ok": False, "error": str(e)}
 
     @tool
     def propose_update_product_price(variant_id: str, price: str) -> dict[str, Any]:

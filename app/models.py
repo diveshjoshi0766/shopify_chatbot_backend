@@ -1,16 +1,15 @@
+"""
+Domain types and MongoDB document entity tags for the dyspensr_ai_bot collection.
+
+All persistent rows live in one collection; `entity` discriminates document shape.
+"""
 from __future__ import annotations
 
 import enum
 import uuid
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
-
-from sqlalchemy import JSON, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-
-
-class Base(DeclarativeBase):
-    pass
 
 
 class StoreStatus(str, enum.Enum):
@@ -26,114 +25,196 @@ class Role(str, enum.Enum):
     read_only = "read_only"
 
 
-class Tenant(Base):
-    __tablename__ = "tenants"
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    name: Mapped[str] = mapped_column(String(200), nullable=False, unique=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-
-    users: Mapped[List["User"]] = relationship(back_populates="tenant", cascade="all,delete-orphan")
-    stores: Mapped[List["StoreConnection"]] = relationship(back_populates="tenant", cascade="all,delete-orphan")
-
-
-class User(Base):
-    __tablename__ = "users"
-    __table_args__ = (UniqueConstraint("tenant_id", "email", name="uq_user_tenant_email"),)
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
-    email: Mapped[str] = mapped_column(String(320), nullable=False)
-    display_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
-    role: Mapped[Role] = mapped_column(
-        Enum(Role, native_enum=False, length=32),
-        nullable=False,
-        default=Role.member,
-    )
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-
-    tenant: Mapped["Tenant"] = relationship(back_populates="users")
-    store_memberships: Mapped[List["UserStoreAccess"]] = relationship(
-        back_populates="user", cascade="all,delete-orphan"
-    )
+# Document discriminator values (single collection)
+class Entity(str, enum.Enum):
+    tenant = "tenant"
+    user = "user"
+    store_connection = "store_connection"
+    user_store_access = "user_store_access"
+    conversation = "conversation"
+    conversation_message = "conversation_message"
+    pending_action = "pending_action"
+    audit_log = "audit_log"
+    oauth_state = "oauth_state"
 
 
-class StoreConnection(Base):
-    __tablename__ = "store_connections"
-    __table_args__ = (UniqueConstraint("tenant_id", "shop_domain", name="uq_store_tenant_domain"),)
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
-
-    shop_domain: Mapped[str] = mapped_column(String(255), nullable=False)  # example: my-shop.myshopify.com
-    shop_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
-
-    access_token_enc: Mapped[str] = mapped_column(Text, nullable=False)
-    scopes: Mapped[List[str]] = mapped_column(JSON, nullable=False, default=list)
-    installed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    status: Mapped[StoreStatus] = mapped_column(
-        Enum(StoreStatus, native_enum=False, length=32),
-        nullable=False,
-        default=StoreStatus.active,
-    )
-    token_source: Mapped[str] = mapped_column(String(20), nullable=False, default="oauth")  # oauth|manual
-
-    tenant: Mapped["Tenant"] = relationship(back_populates="stores")
-    user_access: Mapped[List["UserStoreAccess"]] = relationship(
-        back_populates="store", cascade="all,delete-orphan"
-    )
+def utcnow() -> datetime:
+    return datetime.now(timezone.utc)
 
 
-class UserStoreAccess(Base):
-    __tablename__ = "user_store_access"
-    __table_args__ = (UniqueConstraint("user_id", "store_id", name="uq_user_store"),)
+@dataclass
+class Tenant:
+    id: str
+    name: str
+    created_at: datetime
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    store_id: Mapped[str] = mapped_column(ForeignKey("store_connections.id", ondelete="CASCADE"), nullable=False)
-    can_write: Mapped[bool] = mapped_column(nullable=False, default=False)
-
-    user: Mapped["User"] = relationship(back_populates="store_memberships")
-    store: Mapped["StoreConnection"] = relationship(back_populates="user_access")
-
-
-class PendingAction(Base):
-    __tablename__ = "pending_actions"
-
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-
-    store_ids: Mapped[List[str]] = mapped_column(JSON, nullable=False, default=list)
-    action_type: Mapped[str] = mapped_column(String(50), nullable=False)  # eg "update_product_price"
-    tool_payload: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
-
-    summary: Mapped[str] = mapped_column(Text, nullable=False)
-    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")  # pending|executed|cancelled
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
-    executed_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> Tenant:
+        return Tenant(
+            id=d["_id"],
+            name=d["name"],
+            created_at=d.get("created_at") or utcnow(),
+        )
 
 
-class AuditLog(Base):
-    __tablename__ = "audit_logs"
+@dataclass
+class User:
+    id: str
+    tenant_id: str
+    email: str
+    display_name: Optional[str]
+    password_hash: Optional[str]
+    role: Role
+    created_at: datetime
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(String(36), nullable=False)
-    user_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
-    store_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> User:
+        return User(
+            id=d["_id"],
+            tenant_id=d["tenant_id"],
+            email=d["email"],
+            display_name=d.get("display_name"),
+            password_hash=d.get("password_hash"),
+            role=Role(d["role"]),
+            created_at=d.get("created_at") or utcnow(),
+        )
 
-    event_type: Mapped[str] = mapped_column(String(50), nullable=False)  # tool_call|oauth_install|authz_deny|...
-    payload: Mapped[Dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+
+@dataclass
+class StoreConnection:
+    id: str
+    tenant_id: str
+    shop_domain: str
+    shop_id: Optional[str]
+    access_token_enc: str
+    scopes: List[str]
+    installed_at: datetime
+    status: StoreStatus
+    token_source: str
+
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> StoreConnection:
+        return StoreConnection(
+            id=d["_id"],
+            tenant_id=d["tenant_id"],
+            shop_domain=d["shop_domain"],
+            shop_id=d.get("shop_id"),
+            access_token_enc=d.get("access_token_enc") or "",
+            scopes=list(d.get("scopes") or []),
+            installed_at=d.get("installed_at") or utcnow(),
+            status=StoreStatus(d.get("status") or StoreStatus.active.value),
+            token_source=d.get("token_source") or "oauth",
+        )
 
 
-class OAuthState(Base):
-    __tablename__ = "oauth_states"
-    __table_args__ = (UniqueConstraint("tenant_id", "nonce", name="uq_oauth_tenant_nonce"),)
+@dataclass
+class UserStoreAccess:
+    id: str
+    user_id: str
+    store_id: str
+    can_write: bool
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id: Mapped[str] = mapped_column(String(36), nullable=False)
-    user_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True)
-    nonce: Mapped[str] = mapped_column(String(128), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> UserStoreAccess:
+        return UserStoreAccess(
+            id=d["_id"],
+            user_id=d["user_id"],
+            store_id=d["store_id"],
+            can_write=bool(d.get("can_write")),
+        )
 
+
+@dataclass
+class Conversation:
+    id: str
+    tenant_id: str
+    user_id: str
+    title: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> Conversation:
+        return Conversation(
+            id=d["_id"],
+            tenant_id=d["tenant_id"],
+            user_id=d["user_id"],
+            title=d.get("title"),
+            created_at=d.get("created_at") or utcnow(),
+            updated_at=d.get("updated_at") or utcnow(),
+        )
+
+
+@dataclass
+class ConversationMessage:
+    id: str
+    conversation_id: str
+    role: str
+    content: str
+    message_metadata: Optional[Dict[str, Any]]
+    created_at: datetime
+
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> ConversationMessage:
+        return ConversationMessage(
+            id=d["_id"],
+            conversation_id=d["conversation_id"],
+            role=d["role"],
+            content=d["content"],
+            message_metadata=d.get("message_metadata"),
+            created_at=d.get("created_at") or utcnow(),
+        )
+
+
+@dataclass
+class PendingAction:
+    id: str
+    tenant_id: str
+    user_id: str
+    conversation_id: Optional[str]
+    store_ids: List[str]
+    action_type: str
+    tool_payload: Dict[str, Any]
+    summary: str
+    status: str
+    created_at: datetime
+    executed_at: Optional[datetime]
+
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> PendingAction:
+        return PendingAction(
+            id=d["_id"],
+            tenant_id=d["tenant_id"],
+            user_id=d["user_id"],
+            conversation_id=d.get("conversation_id"),
+            store_ids=list(d.get("store_ids") or []),
+            action_type=d["action_type"],
+            tool_payload=dict(d.get("tool_payload") or {}),
+            summary=d.get("summary") or "",
+            status=d.get("status") or "pending",
+            created_at=d.get("created_at") or utcnow(),
+            executed_at=d.get("executed_at"),
+        )
+
+
+@dataclass
+class OAuthState:
+    id: str
+    tenant_id: str
+    user_id: Optional[str]
+    nonce: str
+    created_at: datetime
+
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> OAuthState:
+        return OAuthState(
+            id=d["_id"],
+            tenant_id=d["tenant_id"],
+            user_id=d.get("user_id"),
+            nonce=d["nonce"],
+            created_at=d.get("created_at") or utcnow(),
+        )
+
+
+def new_id() -> str:
+    return str(uuid.uuid4())

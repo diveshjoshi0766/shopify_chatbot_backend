@@ -1,31 +1,53 @@
 from __future__ import annotations
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+import logging
+from typing import Generator, Optional
 
+from pymongo import MongoClient
+from pymongo.database import Database
+
+from app.mongo_repository import MongoRepository, ensure_mongo_indexes
 from app.settings import get_settings
 
+_log = logging.getLogger(__name__)
 
-def _create_engine():
+_client: Optional[MongoClient] = None
+
+
+def get_mongo_client() -> MongoClient:
+    global _client
+    if _client is None:
+        settings = get_settings()
+        _client = MongoClient(settings.mongodb_uri)
+        _log.debug("MongoClient created")
+    return _client
+
+
+def get_mongo_database() -> Database:
     settings = get_settings()
-    url = settings.database_url
-    connect_args: dict = {}
-    if url.startswith("sqlite"):
-        connect_args = {"check_same_thread": False}
-    kwargs: dict = {"pool_pre_ping": True, "connect_args": connect_args}
-    if url.startswith("mysql"):
-        kwargs["pool_recycle"] = 280
-    return create_engine(url, **kwargs)
+    client = get_mongo_client()
+    db_name = settings.resolved_mongo_database_name()
+    return client[db_name]
 
 
-engine = _create_engine()
-SessionLocal = sessionmaker(bind=engine, class_=Session, autocommit=False, autoflush=False)
+def get_mongo_collection():
+    settings = get_settings()
+    return get_mongo_database()[settings.mongodb_collection]
 
 
-def get_db():
-    db = SessionLocal()
+def get_tool_repository() -> MongoRepository:
+    """Thread-safe repo for LangGraph tool workers (shares process-wide client)."""
+    return MongoRepository(get_mongo_collection())
+
+
+def ensure_mongo_schema() -> None:
+    coll = get_mongo_collection()
+    ensure_mongo_indexes(coll)
+
+
+def get_db() -> Generator[MongoRepository, None, None]:
+    repo = MongoRepository(get_mongo_collection())
     try:
-        yield db
+        yield repo
     finally:
-        db.close()
-
+        pass

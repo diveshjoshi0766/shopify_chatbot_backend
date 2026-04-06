@@ -169,9 +169,18 @@ class ShopifyDevMCPSession:
 
     def call_tool(self, name: str, arguments: dict[str, Any], *, timeout_s: float = 120.0) -> dict[str, Any]:
         if self._loop is None or self._session is None:
+            _log.warning("mcp_tool_skip name=%s reason=session_not_started", name)
             return {"ok": False, "error": "MCP session not started"}
         sess = self._session
         loop = self._loop
+
+        arg_keys = sorted((arguments or {}).keys())
+        _log.info(
+            "mcp_tool_start name=%s arg_keys=%s timeout_s=%s",
+            name,
+            arg_keys[:20],
+            timeout_s,
+        )
 
         async def _call() -> dict[str, Any]:
             assert sess is not None
@@ -180,7 +189,21 @@ class ShopifyDevMCPSession:
 
         fut = asyncio.run_coroutine_threadsafe(_call(), loop)
         try:
-            return fut.result(timeout=timeout_s)
+            out = fut.result(timeout=timeout_s)
+            ok = bool(out.get("ok")) if isinstance(out, dict) else True
+            preview = ""
+            if isinstance(out, dict):
+                if out.get("text"):
+                    preview = str(out.get("text", ""))[:160].replace("\n", " ")
+                elif out.get("message"):
+                    preview = str(out.get("message", ""))[:160].replace("\n", " ")
+            _log.info(
+                "mcp_tool_done name=%s ok=%s preview=%s",
+                name,
+                ok,
+                preview or "(no text preview)",
+            )
+            return out
         except Exception as e:  # noqa: BLE001
             _log.warning("MCP tool %s failed: %s", name, e)
             return {"ok": False, "error": str(e)}

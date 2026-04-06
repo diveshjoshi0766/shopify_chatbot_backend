@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy.orm import Session
-
-from app.models import AuditLog
+if TYPE_CHECKING:
+    from app.mongo_repository import MongoRepository
 
 
 def audit(
-    db: Session,
+    db: "MongoRepository",
     *,
     tenant_id: str,
     event_type: str,
@@ -16,17 +15,11 @@ def audit(
     user_id: Optional[str] = None,
     store_id: Optional[str] = None,
 ) -> None:
-    """Stage an audit row in the current transaction.
-
-    Callers own transaction boundaries and should commit/rollback.
-    """
-    db.add(
-        AuditLog(
-            tenant_id=tenant_id,
-            user_id=user_id,
-            store_id=store_id,
-            event_type=event_type,
-            payload=payload,
-        )
+    """Append an audit document (MongoDB writes immediately)."""
+    db.insert_audit(
+        tenant_id=tenant_id,
+        user_id=user_id,
+        store_id=store_id,
+        event_type=event_type,
+        payload=payload,
     )
-

@@ -9,7 +9,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # Always load backend/.env even if uvicorn is started from the repo root.
 _BACKEND_DIR = Path(__file__).resolve().parents[1]
-# Ensure OPENAI_API_KEY etc. are in os.environ (shell env can be empty and override otherwise).
 load_dotenv(_BACKEND_DIR / ".env", override=True)
 
 
@@ -22,14 +21,23 @@ class Settings(BaseSettings):
 
     app_env: Literal["dev", "prod", "test"] = "dev"
 
-    database_url: str = "sqlite:///./dev.db"
+    # MongoDB Atlas or local — database name should be in the URI path unless mongodb_database is set.
+    mongodb_uri: str = "mongodb://127.0.0.1:27017/dyspensr_ai_bot"
+    """Connection URI including database path, e.g. mongodb+srv://user:pass@host/Calidevelopment?retryWrites=true&w=majority"""
 
-    @field_validator("database_url", mode="before")
+    mongodb_database: str = ""
+    """If set, overrides the database name parsed from mongodb_uri."""
+
+    mongodb_collection: str = "dyspensr_ai_bot"
+    """Single collection storing all entity types (discriminated by `entity` field)."""
+
+    @field_validator("mongodb_uri", mode="before")
     @classmethod
-    def normalize_database_url(cls, v: Any) -> Any:
-        if isinstance(v, str) and v.startswith("mysql://"):
-            return "mysql+pymysql://" + v[len("mysql://") :]
+    def strip_mongo_uri(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            return v.strip()
         return v
+
     encryption_key_base64: str = ""
 
     # Shopify app config
@@ -40,29 +48,40 @@ class Settings(BaseSettings):
     shopify_admin_api_version: str = "2025-01"
     shopify_storefront_api_version: str = "2025-01"
 
-    # Shopify Dev MCP (https://shopify.dev/docs/apps/build/devmcp) — subprocess via npx; used by the chat agent for API/docs discovery.
     shopify_dev_mcp_enabled: bool = True
     shopify_dev_mcp_command: str = "npx"
-    # Space-separated args after command (matches Cursor: npx -y @shopify/dev-mcp@latest)
     shopify_dev_mcp_args: str = "-y @shopify/dev-mcp@latest"
     shopify_dev_mcp_opt_out_instrumentation: bool = False
-    shopify_dev_mcp_liquid_validation_mode: str = ""  # e.g. full | partial; empty = server default
-    # Plaintext OAuth tokens (Admin API); default file is under backend/ (gitignored).
+    shopify_dev_mcp_liquid_validation_mode: str = ""
     shopify_tokens_file: str = "data/shopify_tokens.json"
 
-    # LLM provider(s)
     openai_api_key: Optional[str] = None
 
-    # CORS — comma-separated origins; set to "*" to allow all (credentials will be disabled).
     cors_origins: str = "http://localhost:8080,http://localhost:3000,http://127.0.0.1:8080,http://127.0.0.1:3000"
 
-    # Auth settings for signed bearer tokens.
     auth_token_secret: str = "dev-insecure-secret-change-me"
     auth_token_ttl_seconds: int = 60 * 60 * 8
     auth_allow_legacy_headers: bool = True
+    auth_registration_password: str = ""
+    auth_admin_register_email: str = ""
+    auth_admin_register_password: str = ""
+    auth_admin_email: str = "diveshjoshi0766@gmail.com"
+    default_tenant_id: str = "t1"
+
+    def resolved_mongo_database_name(self) -> str:
+        if (self.mongodb_database or "").strip():
+            return self.mongodb_database.strip()
+        from pymongo.uri_parser import parse_uri
+
+        try:
+            info = parse_uri(self.mongodb_uri)
+            db = (info.get("database") or "").strip()
+            if db:
+                return db
+        except Exception:  # noqa: BLE001
+            pass
+        return "admin"
 
 
 def get_settings() -> Settings:
-    """Fresh Settings each call so .env changes apply without stale process cache."""
     return Settings()
-
