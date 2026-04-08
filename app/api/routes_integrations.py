@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+import json
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
 from app.api.deps import get_current_actor
 from app.audit import audit
 from app.authz import Actor, list_accessible_stores
 from app.db import get_db
+from app.easypost.webhook_verify import easypost_webhook_signature_valid
 from app.mongo_repository import MongoRepository
 from app.settings import get_settings
 from app.shopify.oauth import build_oauth_install_url, encode_oauth_state
@@ -66,3 +69,54 @@ async def shopify_oauth_install_url(
         payload={"shop": shop},
     )
     return {"install_url": install_url, "tenant_id": tenant_id}
+
+
+@router.get("/easypost/status")
+def easypost_integration_status(actor: Actor = Depends(get_current_actor)):
+    """EasyPost configuration flags (no secrets returned)."""
+    settings = get_settings()
+    return {
+        "tenant_id": actor.tenant_id,
+        "api_key_configured": bool((settings.easypost_api_key or "").strip()),
+        "webhook_secret_configured": bool((settings.easypost_webhook_secret or "").strip()),
+        "api_base": (settings.easypost_api_base or "").strip() or "https://api.easypost.com/v2",
+    }
+
+
+@router.post("/easypost/webhook")
+async def easypost_webhook(request: Request, db: MongoRepository = Depends(get_db)):
+    """
+    EasyPost Event webhook. Validates X-Hmac-Signature when EASYPOST_WEBHOOK_SECRET is set.
+    Idempotent storage by EasyPost event id (evt_...).
+    """
+    settings = get_settings()
+    secret = (settings.easypost_webhook_secret or "").strip()
+    if not secret:
+        return Response(status_code=503, content="EasyPost webhook secret not configured")
+
+    body = await request.body()
+    sig = request.headers.get("X-Hmac-Signature") or request.headers.get("x-hmac-signature")
+    if not easypost_webhook_signature_valid(secret=secret, raw_body=body, signature_header=sig):
+        raise HTTPException(status_code=401, detail="Invalid webhook signature")
+
+    try:
+        payload = json.loads(body.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        raise HTTPException(status_code=400, detail="Invalid JSON body") from None
+
+    event_id = str(payload.get("id") or "").strip()
+    if not event_id:
+        return {"ok": True, "stored": False, "note": "missing event id"}
+
+    desc = str(payload.get("description") or "")
+    robj = payload.get("result")
+    robject = None
+    if isinstance(robj, dict):
+        robject = str(robj.get("object") or "") or None
+
+    inserted = db.insert_easypost_webhook_event_if_new(
+        event_id=event_id,
+        description=desc,
+        result_object=robject,
+    )
+    return {"ok": True, "stored": inserted, "event_id": event_id}

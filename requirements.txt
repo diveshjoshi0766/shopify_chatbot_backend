@@ -16,6 +16,9 @@ langchain-openai>=0.1.19
 # Shopify Dev MCP client (stdio → npx @shopify/dev-mcp); requires Python >= 3.10
 mcp>=1.2.0
 
+# Pipedream Connect (optional; remote MCP uses httpx OAuth + streamable HTTP)
+pipedream>=1.0.0
+
 # Tests
 pytest>=8.0.0
 mongomock>=4.1.0

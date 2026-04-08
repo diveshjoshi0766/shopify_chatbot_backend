@@ -25,6 +25,8 @@ from app.bootstrap_admin import ensure_bootstrap_admin_user
 from app.db import ensure_mongo_schema, get_tool_repository
 from app.logging_config import setup_integration_logging
 from app.settings import get_settings
+from app.pipedream.mcp_session import streamable_mcp_client_available, streamable_mcp_import_error
+from app.pipedream.token_provider import PipedreamTokenProvider, pipedream_sdk_installed
 from app.shopify.mcp_dev import (
     env_block_for_shopify_mcp,
     mcp_import_error,
@@ -55,8 +57,24 @@ async def lifespan(app: FastAPI):
 
     settings = get_settings()
     app.state.mcp_session = None
+    app.state.pipedream_token_provider = None
     app.state.memory = MemorySaver()
     _app_log.info("LangGraph MemorySaver initialized (in-process conversation memory).")
+
+    if getattr(settings, "pipedream_enabled", False):
+        pd_tp = PipedreamTokenProvider(
+            client_id=getattr(settings, "pipedream_client_id", ""),
+            client_secret=getattr(settings, "pipedream_client_secret", ""),
+        )
+        if pd_tp.configured():
+            app.state.pipedream_token_provider = pd_tp
+            _app_log.info(
+                "Pipedream token provider ready (per-request MCP session when app slug or discovery is set)."
+            )
+        else:
+            _app_log.warning("PIPEDREAM_ENABLED but client credentials missing — Pipedream MCP disabled.")
+    else:
+        _app_log.info("Pipedream MCP disabled (PIPEDREAM_ENABLED=false).")
 
     if getattr(settings, "shopify_dev_mcp_enabled", True):
 
@@ -145,6 +163,7 @@ def create_app() -> FastAPI:
             db_detail = str(e)
 
         mcp_session = getattr(app.state, "mcp_session", None)
+        pd_tp = getattr(app.state, "pipedream_token_provider", None)
         integrations = {
             "database": "connected" if db_ok else "error",
             "mongodb_collection": settings.mongodb_collection,
@@ -163,6 +182,22 @@ def create_app() -> FastAPI:
                 "args": parse_mcp_args(getattr(settings, "shopify_dev_mcp_args", "")),
                 "note": "Singleton MCP session shared across all chat requests (requires Node 18+). "
                 "IDE still uses .cursor/mcp.json separately.",
+            },
+            "pipedream": {
+                "enabled_setting": getattr(settings, "pipedream_enabled", False),
+                "credentials_configured": pd_tp is not None,
+                "pipedream_package_installed": pipedream_sdk_installed(),
+                "streamable_mcp_available": streamable_mcp_client_available(),
+                "streamable_mcp_error": streamable_mcp_import_error(),
+                "project_id_configured": bool((getattr(settings, "pipedream_project_id", "") or "").strip()),
+                "default_app_slug": (getattr(settings, "pipedream_default_app_slug", "") or "").strip() or None,
+                "app_discovery": bool(getattr(settings, "pipedream_app_discovery", False)),
+                "max_tools": int(getattr(settings, "pipedream_max_tools", 40)),
+                "last_token_error": getattr(pd_tp, "last_error", None) if pd_tp else None,
+            },
+            "easypost": {
+                "api_key_configured": bool((getattr(settings, "easypost_api_key", "") or "").strip()),
+                "webhook_secret_configured": bool((getattr(settings, "easypost_webhook_secret", "") or "").strip()),
             },
         }
         if db_detail:

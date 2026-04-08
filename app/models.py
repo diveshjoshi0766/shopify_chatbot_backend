@@ -36,6 +36,7 @@ class Entity(str, enum.Enum):
     pending_action = "pending_action"
     audit_log = "audit_log"
     oauth_state = "oauth_state"
+    easypost_webhook_event = "easypost_webhook_event"
 
 
 def utcnow() -> datetime:
@@ -163,6 +164,25 @@ class ConversationMessage:
             content=d["content"],
             message_metadata=d.get("message_metadata"),
             created_at=d.get("created_at") or utcnow(),
+        )
+
+
+@dataclass
+class EasyPostWebhookEvent:
+    """Stored EasyPost webhook Event delivery (idempotent by EasyPost event id)."""
+
+    id: str
+    description: str
+    received_at: datetime
+    result_object: Optional[str]
+
+    @staticmethod
+    def from_doc(d: dict[str, Any]) -> EasyPostWebhookEvent:
+        return EasyPostWebhookEvent(
+            id=d["_id"],
+            description=str(d.get("description") or ""),
+            received_at=d.get("received_at") or utcnow(),
+            result_object=d.get("result_object"),
         )
 
 

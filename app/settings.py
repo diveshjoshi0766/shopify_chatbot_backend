@@ -55,6 +55,23 @@ class Settings(BaseSettings):
     shopify_dev_mcp_liquid_validation_mode: str = ""
     shopify_tokens_file: str = "data/shopify_tokens.json"
 
+    # Pipedream Connect remote MCP (https://pipedream.com/docs/connect/mcp/developers)
+    pipedream_enabled: bool = False
+    pipedream_client_id: str = ""
+    pipedream_client_secret: str = ""
+    pipedream_project_id: str = ""
+    pipedream_environment: Literal["development", "production"] = "development"
+    pipedream_mcp_url: str = "https://remote.mcp.pipedream.net"
+    pipedream_default_app_slug: str = ""
+    pipedream_tool_mode: str = ""
+    pipedream_app_discovery: bool = False
+    pipedream_max_tools: int = 40
+
+    # EasyPost shipping API — platform-wide API key (tag shipments with reference tenant_id:user_id)
+    easypost_api_key: str = ""
+    easypost_api_base: str = "https://api.easypost.com/v2"
+    easypost_webhook_secret: str = ""
+
     openai_api_key: Optional[str] = None
 
     cors_origins: str = "http://localhost:8080,http://localhost:3000,http://127.0.0.1:8080,http://127.0.0.1:3000"

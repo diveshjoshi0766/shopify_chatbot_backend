@@ -16,8 +16,11 @@ from app.authz import Actor, list_accessible_stores, require_store_write_access
 from app.db import get_db
 from app.lang.agent import run_agent
 from app.lang.schemas import ChatRequest, ChatResponse, ConfirmRequest, StoreChoice
-from app.models import Conversation
+from app.easypost.executor import execute_easypost_pending_action
+from app.models import Conversation, Role
 from app.mongo_repository import MongoRepository
+from app.pipedream.mcp_session import PipedreamMCPSession
+from app.settings import get_settings
 from app.shopify.admin_client import ShopifyAdminClient, ShopifyAdminSession
 from app.shopify.executor import execute_pending_action
 from app.shopify.token_store import get_access_token_for_store
@@ -211,6 +214,44 @@ def chat(
     mcp_session = getattr(request.app.state, "mcp_session", None)
     checkpointer = getattr(request.app.state, "memory", None)
 
+    settings = get_settings()
+    pd_session: PipedreamMCPSession | None = None
+    pd_tp = getattr(request.app.state, "pipedream_token_provider", None)
+    if pd_tp is not None and getattr(settings, "pipedream_enabled", False):
+        slug_req = (body.pipedream_app_slug or "").strip() or None
+        slug = slug_req or (getattr(settings, "pipedream_default_app_slug", "") or "").strip() or None
+        discovery = bool(getattr(settings, "pipedream_app_discovery", False))
+        if discovery or slug:
+            account_id = (body.pipedream_account_id or "").strip() or None
+            tm = (getattr(settings, "pipedream_tool_mode", "") or "").strip() or None
+            ext = f"{actor.tenant_id}:{actor.user_id}"
+            try:
+                pd_session = PipedreamMCPSession(
+                    mcp_url=getattr(settings, "pipedream_mcp_url", "https://remote.mcp.pipedream.net"),
+                    token_provider=pd_tp,
+                    project_id=getattr(settings, "pipedream_project_id", ""),
+                    environment=getattr(settings, "pipedream_environment", "development"),
+                    external_user_id=ext,
+                    app_slug=slug,
+                    app_discovery=discovery,
+                    account_id=account_id,
+                    tool_mode=tm,
+                )
+                pd_session.start()
+            except Exception as e:  # noqa: BLE001
+                _log.warning("Pipedream MCP session failed to start: %s", e)
+                if pd_session is not None:
+                    try:
+                        pd_session.close()
+                    except Exception:  # noqa: BLE001
+                        pass
+                pd_session = None
+        else:
+            _log.warning(
+                "Pipedream enabled but no app slug and discovery off — skipping Pipedream MCP "
+                "(set PIPEDREAM_DEFAULT_APP_SLUG, pass pipedream_app_slug, or PIPEDREAM_APP_DISCOVERY=true)"
+            )
+
     try:
         result = run_agent(
             db,
@@ -219,6 +260,7 @@ def chat(
             user_message=body.message,
             conversation_id=cid,
             mcp_session=mcp_session,
+            pipedream_session=pd_session,
             checkpointer=checkpointer,
         )
     except Exception as e:  # noqa: BLE001
@@ -230,6 +272,9 @@ def chat(
             store_ids,
         )
         raise HTTPException(status_code=500, detail=f"Agent error: {e}") from e
+    finally:
+        if pd_session is not None:
+            pd_session.close()
 
     assistant_meta = _metadata_safe(result.tool_calls)
     _append_conversation_message(
@@ -332,41 +377,78 @@ def confirm(
             db.update_conversation(pending.conversation_id, {})
         return ChatResponse(type="message", message="Cancelled.", conversation_id=pending.conversation_id)
 
-    for sid in pending.store_ids:
-        require_store_write_access(db, actor, sid)
-
-    stores = db.get_stores_by_ids(actor.tenant_id, pending.store_ids)
-    store_by_id = {s.id: s for s in stores}
-
     results: list[dict] = []
-    for sid in pending.store_ids:
-        store = store_by_id.get(sid)
-        if not store:
-            results.append({"store_id": sid, "ok": False, "error": "Store not found"})
-            continue
-        token = get_access_token_for_store(store)
-        client = ShopifyAdminClient(ShopifyAdminSession(shop_domain=store.shop_domain, access_token=token))
+    if pending.action_type.startswith("easypost_"):
+        if actor.role == Role.read_only:
+            raise HTTPException(
+                status_code=403,
+                detail="Read-only users cannot confirm EasyPost shipping actions.",
+            )
+        if not (get_settings().easypost_api_key or "").strip():
+            raise HTTPException(status_code=503, detail="EasyPost is not configured (EASYPOST_API_KEY).")
+        for sid in pending.store_ids:
+            require_store_write_access(db, actor, sid)
         try:
-            details = execute_pending_action(client=client, action_type=pending.action_type, payload=pending.tool_payload)
-            results.append({"store_id": sid, "ok": True, "details": details})
+            details = execute_easypost_pending_action(
+                action_type=pending.action_type,
+                payload=pending.tool_payload,
+            )
+            results.append({"ok": True, "details": details})
             audit(
                 db,
                 tenant_id=actor.tenant_id,
                 user_id=actor.user_id,
-                store_id=sid,
+                store_id=pending.store_ids[0] if pending.store_ids else None,
                 event_type="pending_action_execute",
                 payload={"pending_action_id": pending.id, "action_type": pending.action_type, "details": details},
             )
         except Exception as e:  # noqa: BLE001
-            results.append({"store_id": sid, "ok": False, "error": str(e)})
+            results.append({"ok": False, "error": str(e)})
             audit(
                 db,
                 tenant_id=actor.tenant_id,
                 user_id=actor.user_id,
-                store_id=sid,
+                store_id=pending.store_ids[0] if pending.store_ids else None,
                 event_type="pending_action_execute_error",
                 payload={"pending_action_id": pending.id, "action_type": pending.action_type, "error": str(e)},
             )
+    else:
+        for sid in pending.store_ids:
+            require_store_write_access(db, actor, sid)
+
+        stores = db.get_stores_by_ids(actor.tenant_id, pending.store_ids)
+        store_by_id = {s.id: s for s in stores}
+
+        for sid in pending.store_ids:
+            store = store_by_id.get(sid)
+            if not store:
+                results.append({"store_id": sid, "ok": False, "error": "Store not found"})
+                continue
+            token = get_access_token_for_store(store)
+            client = ShopifyAdminClient(ShopifyAdminSession(shop_domain=store.shop_domain, access_token=token))
+            try:
+                details = execute_pending_action(
+                    client=client, action_type=pending.action_type, payload=pending.tool_payload
+                )
+                results.append({"store_id": sid, "ok": True, "details": details})
+                audit(
+                    db,
+                    tenant_id=actor.tenant_id,
+                    user_id=actor.user_id,
+                    store_id=sid,
+                    event_type="pending_action_execute",
+                    payload={"pending_action_id": pending.id, "action_type": pending.action_type, "details": details},
+                )
+            except Exception as e:  # noqa: BLE001
+                results.append({"store_id": sid, "ok": False, "error": str(e)})
+                audit(
+                    db,
+                    tenant_id=actor.tenant_id,
+                    user_id=actor.user_id,
+                    store_id=sid,
+                    event_type="pending_action_execute_error",
+                    payload={"pending_action_id": pending.id, "action_type": pending.action_type, "error": str(e)},
+                )
 
     db.update_pending_action(
         pending.id,
@@ -376,7 +458,13 @@ def confirm(
     if ok_count == len(results) and results:
         summary_text = "Executed."
     elif ok_count == 0:
-        parts = [f"{r.get('store_id')}: {r.get('error', 'failed')}" for r in results if not r.get("ok")]
+        parts: list[str] = []
+        for r in results:
+            if r.get("ok"):
+                continue
+            sid = r.get("store_id")
+            label = f"{sid}: " if sid else ""
+            parts.append(f"{label}{r.get('error', 'failed')}")
         summary_text = "Failed: " + " | ".join(parts) if parts else "Failed."
     else:
         summary_text = f"Partial: {ok_count}/{len(results)} store(s) succeeded. See metadata for errors."

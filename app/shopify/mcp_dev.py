@@ -17,12 +17,13 @@ import os
 import threading
 from typing import Any
 
+from app.mcp_common import call_tool_result_to_payload
+
 _log = logging.getLogger(__name__)
 
 try:
     from mcp import ClientSession, StdioServerParameters
     from mcp.client.stdio import stdio_client
-    from mcp.types import TextContent
 
     _MCP_IMPORT_OK = True
     _IMPORT_ERR: str | None = None
@@ -30,7 +31,6 @@ except ImportError as e:  # pragma: no cover
     ClientSession = Any  # type: ignore[misc, assignment]
     StdioServerParameters = Any  # type: ignore[misc, assignment]
     stdio_client = Any  # type: ignore[misc, assignment]
-    TextContent = Any  # type: ignore[misc, assignment]
     _MCP_IMPORT_OK = False
     _IMPORT_ERR = str(e)
 
@@ -43,31 +43,6 @@ def mcp_import_error() -> str | None:
     if _MCP_IMPORT_OK:
         return None
     return _IMPORT_ERR or "mcp package not installed"
-
-
-def _call_tool_result_to_payload(result: Any) -> dict[str, Any]:
-    """Flatten MCP CallToolResult into a small JSON-friendly dict for the LLM."""
-    if getattr(result, "isError", False):
-        texts: list[str] = []
-        for block in getattr(result, "content", []) or []:
-            if isinstance(block, TextContent):
-                texts.append(block.text)
-            elif isinstance(block, dict) and block.get("type") == "text":
-                texts.append(str(block.get("text", "")))
-            else:
-                texts.append(str(block))
-        return {"ok": False, "isError": True, "message": "\n".join(texts).strip() or "MCP tool error"}
-
-    parts: list[str] = []
-    for block in getattr(result, "content", []) or []:
-        if isinstance(block, TextContent):
-            parts.append(block.text)
-        elif isinstance(block, dict) and block.get("type") == "text":
-            parts.append(str(block.get("text", "")))
-        else:
-            parts.append(str(block))
-    text = "\n".join(parts).strip()
-    return {"ok": True, "text": text}
 
 
 class ShopifyDevMCPSession:
@@ -185,7 +160,7 @@ class ShopifyDevMCPSession:
         async def _call() -> dict[str, Any]:
             assert sess is not None
             raw = await sess.call_tool(name, arguments)
-            return _call_tool_result_to_payload(raw)
+            return call_tool_result_to_payload(raw)
 
         fut = asyncio.run_coroutine_threadsafe(_call(), loop)
         try:

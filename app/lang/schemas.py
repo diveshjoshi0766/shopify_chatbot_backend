@@ -15,6 +15,14 @@ class ChatRequest(BaseModel):
     store_id: Optional[str] = None
     store_ids: Optional[List[str]] = None
     shop_domain: Optional[str] = None
+    pipedream_app_slug: Optional[str] = Field(
+        default=None,
+        description="Pipedream app slug (e.g. slack). Falls back to PIPEDREAM_DEFAULT_APP_SLUG when unset.",
+    )
+    pipedream_account_id: Optional[str] = Field(
+        default=None,
+        description="Optional Pipedream connected account id (apn_...) for x-pd-account-id.",
+    )
 
 
 class StoreChoice(BaseModel):

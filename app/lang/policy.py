@@ -15,6 +15,8 @@ ALLOWLISTED_WRITE_ACTIONS = {
     "update_inventory",
     "add_order_tag",
     "generic_graphql_mutation",
+    "easypost_buy_label",
+    "easypost_refund_shipment",
 }
 
 

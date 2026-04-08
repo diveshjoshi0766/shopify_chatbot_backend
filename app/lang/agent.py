@@ -20,6 +20,9 @@ from langgraph.prebuilt import create_react_agent
 from app.authz import Actor
 from app.mongo_repository import MongoRepository
 from app.settings import get_settings
+from app.easypost.tools import build_easypost_tools
+from app.pipedream.mcp_session import PipedreamMCPSession
+from app.pipedream.tools import build_pipedream_tools
 from app.shopify.mcp_dev import ShopifyDevMCPSession
 from app.shopify.tools import build_shopify_tools
 
@@ -39,7 +42,17 @@ SYSTEM_PROMPT = (
     "NEVER call the same MCP tool more than twice — synthesize your answer from what you have.\n"
     "4. If unsure which store is in scope, call `list_scoped_stores`.\n"
     "5. Prefer specialized tools: `admin_search_products`, `admin_get_order`, propose_* for writes.\n"
-    "6. Always answer concisely after gathering information. Do not keep searching endlessly."
+    "6. Always answer concisely after gathering information. Do not keep searching endlessly.\n"
+    "7. Tools named `pipedream__*` call Pipedream Connect MCP for third-party apps (Slack, Gmail, etc.). "
+    "Use them only when the user asks for actions outside Shopify or explicitly for those integrations. "
+    "Never use them for routine Shopify product/order/customer lookups — use Shopify Admin tools instead. "
+    "If a tool response includes a Pipedream connect URL (e.g. pipedream.com/_static/connect.html), "
+    "show that link clearly so the user can connect their account. "
+    "Avoid redundant Pipedream tool calls; stop after you have enough to answer.\n"
+    "8. EasyPost tools (`easypost_*`, `propose_easypost_*`): shipping only. "
+    "`easypost_create_shipment` creates an unpaid shipment; purchasing a label requires "
+    "`propose_easypost_buy_label` and explicit user confirmation (charges apply). "
+    "Use `easypost_retrieve_shipment` to inspect rates and status."
 )
 
 
@@ -99,30 +112,42 @@ def run_agent(
     user_message: str,
     conversation_id: str,
     mcp_session: Optional[ShopifyDevMCPSession] = None,
+    pipedream_session: Optional[PipedreamMCPSession] = None,
     checkpointer: Optional[BaseCheckpointSaver] = None,
 ) -> AgentResult:
     """
     Runs a LangGraph ReAct agent with Shopify tools scoped to store_ids.
 
     `mcp_session` — singleton Shopify Dev MCP session (from app.state).
+    `pipedream_session` — per-request Pipedream remote MCP session (optional).
     `checkpointer` — LangGraph memory for multi-turn conversation continuity.
     """
     t0 = time.perf_counter()
 
     active_mcp = mcp_session if (mcp_session and mcp_session.is_alive()) else None
+    active_pd = pipedream_session if (pipedream_session and pipedream_session.is_alive()) else None
+    settings = get_settings()
     _log.info(
-        "agent_start tenant=%s user=%s conv=%s store_ids=%d mcp_attached=%s",
+        "agent_start tenant=%s user=%s conv=%s store_ids=%d shopify_mcp=%s pipedream_mcp=%s",
         actor.tenant_id,
         actor.user_id,
         conversation_id,
         len(store_ids),
         bool(active_mcp),
+        bool(active_pd),
     )
     tools = build_shopify_tools(
         db,
         actor=actor,
         store_ids=store_ids,
         mcp_session=active_mcp,
+        conversation_id=conversation_id,
+    )
+    tools = tools + build_pipedream_tools(active_pd, max_tools=settings.pipedream_max_tools)
+    tools = tools + build_easypost_tools(
+        db,
+        actor=actor,
+        store_ids=store_ids,
         conversation_id=conversation_id,
     )
 
@@ -162,21 +187,24 @@ def run_agent(
                 tool_calls.extend(m.tool_calls)
         tnames = _tool_call_names(tool_calls)
         mcp_n = sum(1 for n in tnames if n.startswith("shopify_dev_"))
-        admin_n = len(tnames) - mcp_n
+        pd_n = sum(1 for n in tnames if n.startswith("pipedream__"))
+        admin_n = len(tnames) - mcp_n - pd_n
         if not last_text:
             last_text = "I gathered some information but couldn't finalize an answer in time. Please try a more specific question."
         ms = (time.perf_counter() - t0) * 1000
         _log.info(
             "agent_done tenant=%s user=%s conv=%s stores=%d ms=%.0f phase=recursion_limit "
-            "mcp_session_alive=%s tool_calls_total=%d mcp_tools=%d admin_tools=%d names=%s",
+            "shopify_mcp=%s pipedream_mcp=%s tool_calls_total=%d shopify_dev=%d pipedream=%d admin=%d names=%s",
             actor.tenant_id,
             actor.user_id,
             conversation_id,
             len(store_ids),
             ms,
             bool(active_mcp),
+            bool(active_pd),
             len(tnames),
             mcp_n,
+            pd_n,
             admin_n,
             tnames,
         )
@@ -190,19 +218,22 @@ def run_agent(
             tool_calls_out.extend(m.tool_calls)
     names = _tool_call_names(tool_calls_out)
     mcp_n = sum(1 for n in names if n.startswith("shopify_dev_"))
-    admin_n = len(names) - mcp_n
+    pd_n = sum(1 for n in names if n.startswith("pipedream__"))
+    admin_n = len(names) - mcp_n - pd_n
     ms = (time.perf_counter() - t0) * 1000
     _log.info(
-        "agent_done tenant=%s user=%s conv=%s stores=%d ms=%.0f mcp_session_alive=%s "
-        "tool_calls_total=%d mcp_tools=%d admin_tools=%d names=%s",
+        "agent_done tenant=%s user=%s conv=%s stores=%d ms=%.0f shopify_mcp=%s pipedream_mcp=%s "
+        "tool_calls_total=%d shopify_dev=%d pipedream=%d admin=%d names=%s",
         actor.tenant_id,
         actor.user_id,
         conversation_id,
         len(store_ids),
         ms,
         bool(active_mcp),
+        bool(active_pd),
         len(names),
         mcp_n,
+        pd_n,
         admin_n,
         names,
     )

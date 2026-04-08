@@ -16,6 +16,7 @@ from pymongo.errors import DuplicateKeyError, PyMongoError
 
 from app.models import (
     Conversation,
+    EasyPostWebhookEvent,
     Entity,
     OAuthState,
     PendingAction,
@@ -353,6 +354,36 @@ class MongoRepository:
             {"_id": pending_id, "entity": Entity.pending_action.value},
             {"$set": updates},
         )
+
+    # --- EasyPost webhook idempotency ---
+    def insert_easypost_webhook_event_if_new(
+        self,
+        *,
+        event_id: str,
+        description: str,
+        result_object: Optional[str],
+    ) -> bool:
+        """
+        Insert webhook Event by EasyPost event id. Returns True if inserted, False if duplicate.
+        """
+        try:
+            self._c.insert_one(
+                {
+                    "_id": event_id,
+                    "entity": Entity.easypost_webhook_event.value,
+                    "easypost_event_id": event_id,
+                    "description": description,
+                    "result_object": result_object,
+                    "received_at": utcnow(),
+                }
+            )
+            return True
+        except DuplicateKeyError:
+            return False
+
+    def get_easypost_webhook_event(self, event_id: str) -> Optional[EasyPostWebhookEvent]:
+        d = self._c.find_one({"_id": event_id, "entity": Entity.easypost_webhook_event.value})
+        return EasyPostWebhookEvent.from_doc(d) if d else None
 
     # --- OAuth state ---
     def insert_oauth_state(self, *, tenant_id: str, user_id: Optional[str], nonce: str) -> OAuthState:
